@@ -346,7 +346,7 @@ export default function GameSession({ user, gameId, onBack }) {
             )}
             <div className="flex flex-col gap-3">
               <input 
-                type="number" min="0" step="100" required
+                type="number" min="0" step="1" required
                 value={pledgeAmount}
                 onChange={e => setPledgeAmount(e.target.value)}
                 placeholder={`Montant ${game.currency || 'XOF'}`}
