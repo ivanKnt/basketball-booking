@@ -53,9 +53,9 @@ export default function GameSession({ user, gameId, onBack }) {
   const isFull = game.maxPlayers && rsvps.length >= game.maxPlayers;
   const courtCostLabel = game.pricingModel === 'per_person' ? 'Terrain / joueur' : game.pricingModel === 'per_hour' ? 'Terrain / heure' : 'Forfait terrain';
 
-  // Calculate recommended contribution per person for light
-  const lightPerPerson = (!lightIncluded && totalLightNeeded > 0 && rsvps.length > 0)
-    ? Math.ceil(totalLightNeeded / rsvps.length)
+  // Calculate recommended contribution per person for light (use maxPlayers to avoid huge numbers for the first few people)
+  const lightPerPerson = (!lightIncluded && totalLightNeeded > 0)
+    ? Math.ceil(totalLightNeeded / (game.maxPlayers || Math.max(10, rsvps.length)))
     : 0;
 
   const handleToggleRSVP = async () => {
@@ -97,27 +97,44 @@ export default function GameSession({ user, gameId, onBack }) {
     setIsSubmitting(false);
   };
 
+  const myPledges = pledges.filter(p => p.userId === user.uid).reduce((acc, p) => acc + p.amount, 0);
+
   const handlePledge = async (e) => {
     e.preventDefault();
-    if (!pledgeAmount || Number(pledgeAmount) <= 0) return;
+    const newAmount = Number(pledgeAmount);
+    if (isNaN(newAmount) || newAmount < 0) return;
+    
     setIsSubmitting(true);
+    const pledgeRef = doc(db, 'games', gameId, 'pledges', user.uid);
+    const diff = newAmount - myPledges; // How much it changed
+
     try {
-      await addDoc(collection(db, 'games', gameId, 'pledges'), {
-        userId: user.uid,
-        userName: user.profileName,
-        amount: Number(pledgeAmount),
-        createdAt: serverTimestamp()
-      });
-      await updateDoc(doc(db, 'users', user.uid), {
-        totalContributed: increment(Number(pledgeAmount))
-      });
+      if (newAmount === 0) {
+        await deleteDoc(pledgeRef);
+      } else {
+        await setDoc(pledgeRef, {
+          userId: user.uid,
+          userName: user.profileName,
+          amount: newAmount,
+          updatedAt: serverTimestamp()
+        });
+      }
+      
+      if (diff !== 0) {
+        await updateDoc(doc(db, 'users', user.uid), {
+          totalContributed: increment(diff)
+        });
+      }
+      
       setPledgeAmount('');
-      confetti({
-        particleCount: 100,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ['#10b981', '#3b82f6', '#f59e0b']
-      });
+      if (newAmount > myPledges) {
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#10b981', '#3b82f6', '#f59e0b']
+        });
+      }
     } catch (e) {
       console.error(e);
     }
@@ -168,7 +185,6 @@ export default function GameSession({ user, gameId, onBack }) {
     setIsSubmitting(false);
   };
 
-  const myPledges = pledges.filter(p => p.userId === user.uid).reduce((acc, p) => acc + p.amount, 0);
   const myCourtCost = isAttending ? (game.perHeadCost || 0) : 0;
   const myTotalDue = myCourtCost + myPledges;
 
@@ -241,13 +257,15 @@ export default function GameSession({ user, gameId, onBack }) {
 
         <div className="flex flex-col md:flex-row gap-6 justify-between items-center bg-black/40 p-6 rounded-2xl border border-white/5 mt-5 relative z-10">
           <div className="text-center md:text-left">
-            <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Ce que tu paies</h3>
+            <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Tu dois payer</h3>
             <p className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight">
-              {game.perHeadCost}{lightPerPerson > 0 && <> + ~{lightPerPerson}</>} <span className="text-sm text-zinc-500 font-normal">{game.currency || 'XOF'}</span>
+              {myCourtCost} <span className="text-sm text-zinc-500 font-normal">{game.currency || 'XOF'}</span>
             </p>
-            <p className="text-xs text-zinc-500 mt-1 font-medium">
-              {game.perHeadCost} terrain{lightPerPerson > 0 ? ` + ~${lightPerPerson} lumière` : ''} = <span className="text-white font-semibold">{game.perHeadCost + lightPerPerson} {game.currency || 'XOF'}</span> total estimé
-            </p>
+            {myPledges > 0 && (
+              <p className="text-xs text-amber-500 mt-1 font-medium">
+                + {myPledges} {game.currency || 'XOF'} pour la lumière
+              </p>
+            )}
           </div>
           
           <motion.button 
@@ -278,14 +296,12 @@ export default function GameSession({ user, gameId, onBack }) {
           <p className="text-sm text-zinc-400 mb-4 font-medium">L'éclairage n'est pas inclus. Contribuez ici pour financer les lumières.</p>
           
           {/* Recommended per-person contribution */}
-          {rsvps.length > 0 && (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center justify-between">
-              <span className="text-xs text-zinc-400 font-medium">💡 Recommandé / joueur</span>
-              <span className="text-base font-display font-bold text-amber-400 tracking-tight">
-                ~{Math.ceil(totalLightNeeded / rsvps.length)} {game.currency || 'XOF'}
-              </span>
-            </div>
-          )}
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center justify-between">
+            <span className="text-xs text-zinc-400 font-medium">💡 Recommandé / joueur</span>
+            <span className="text-base font-display font-bold text-amber-400 tracking-tight">
+              ~{lightPerPerson} {game.currency || 'XOF'}
+            </span>
+          </div>
           
           <div className="flex items-center gap-6 mb-8">
             <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
@@ -321,17 +337,25 @@ export default function GameSession({ user, gameId, onBack }) {
             </div>
           </div>
 
-          <form onSubmit={handlePledge} className="flex gap-3">
-            <input 
-              type="number" min="100" step="100" required
-              value={pledgeAmount}
-              onChange={e => setPledgeAmount(e.target.value)}
-              placeholder={`Montant ${game.currency || 'XOF'}`}
-              className="flex-1 p-4 bg-black/40 border border-white/5 rounded-2xl text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors font-display text-lg"
-            />
-            <button type="submit" disabled={isSubmitting || !pledgeAmount} className="bg-amber-500 text-black font-display font-bold tracking-tight text-lg px-8 rounded-2xl hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/20">
-              Donner
-            </button>
+          <form onSubmit={handlePledge} className="flex flex-col gap-3">
+            {myPledges > 0 && (
+              <div className="text-xs text-amber-500 font-medium text-center">
+                Tu as déjà cotisé {myPledges} {game.currency || 'XOF'}. 
+                Entre un nouveau montant pour modifier, ou 0 pour annuler.
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input 
+                type="number" min="0" step="100" required
+                value={pledgeAmount}
+                onChange={e => setPledgeAmount(e.target.value)}
+                placeholder={`Montant ${game.currency || 'XOF'}`}
+                className="flex-1 p-4 bg-black/40 border border-white/5 rounded-2xl text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors font-display text-lg"
+              />
+              <button type="submit" disabled={isSubmitting || pledgeAmount === ''} className="bg-amber-500 text-black font-display font-bold tracking-tight px-6 rounded-2xl hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/20">
+                {myPledges > 0 ? 'Modifier' : 'Donner'}
+              </button>
+            </div>
           </form>
         </motion.div>
         )}
