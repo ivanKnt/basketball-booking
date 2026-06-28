@@ -22,13 +22,13 @@ function NavButton({ item, activeTab, onSelect, layoutId = 'nav-pill' }) {
       onClick={() => onSelect(item.id)}
       className={cn(
         'relative flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-colors',
-        isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
+        isActive ? 'text-text' : 'text-text-muted hover:text-text-muted hover:bg-white/5'
       )}
     >
       {isActive && (
         <motion.div
           layoutId={layoutId}
-          className="absolute inset-0 bg-white/8 rounded-xl border border-white/10"
+          className="absolute inset-0 bg-white/8 rounded-xl border border-border"
           transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
         />
       )}
@@ -72,8 +72,8 @@ export default function Dashboard({ user, setUser }) {
     <div className="flex min-h-[calc(100dvh-72px)]">
       {/* Desktop sidebar */}
       {showNav && (
-        <aside className="hidden lg:flex flex-col w-56 xl:w-64 shrink-0 border-r border-white/5 bg-black/20 backdrop-blur-sm p-4 sticky top-[72px] h-[calc(100dvh-72px)]">
-          <div className="flex items-center gap-2 px-3 mb-6 text-zinc-500">
+        <aside className="hidden lg:flex flex-col w-56 xl:w-64 shrink-0 border-r border-border bg-surface p-4 sticky top-[72px] h-[calc(100dvh-72px)]">
+          <div className="flex items-center gap-2 px-3 mb-6 text-text-muted">
             <LayoutGrid size={14} />
             <span className="text-[10px] font-bold uppercase tracking-widest">Navigation</span>
           </div>
@@ -91,7 +91,7 @@ export default function Dashboard({ user, setUser }) {
           <button
             onClick={() => setActiveTab(activeTab === 'create' ? 'games' : 'create')}
             className={cn(
-              'flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-display font-bold text-sm tracking-wide transition-all',
+              'flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-display font-semibold text-sm tracking-wide transition-all',
               activeTab === 'create'
                 ? 'bg-white text-black'
                 : 'bg-gradient-to-r from-primary to-[#ff8c00] text-black hover:opacity-90'
@@ -142,7 +142,7 @@ export default function Dashboard({ user, setUser }) {
       {/* Mobile bottom nav */}
       {showNav && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-3 sm:px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-2 pointer-events-none">
-          <div className="pointer-events-auto premium-glass px-3 sm:px-4 py-2 flex justify-between items-center gap-1 rounded-2xl max-w-lg mx-auto border border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
+          <div className="pointer-events-auto apple-card px-3 sm:px-4 py-2 flex justify-between items-center gap-1 rounded-2xl max-w-lg mx-auto border border-border shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -150,7 +150,7 @@ export default function Dashboard({ user, setUser }) {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className="relative flex flex-col items-center justify-center flex-1 min-w-0 h-12 py-1 text-zinc-500 transition-colors touch-target"
+                  className="relative flex flex-col items-center justify-center flex-1 min-w-0 h-12 py-1 text-text-muted transition-colors touch-target"
                 >
                   {isActive && (
                     <motion.div
@@ -159,8 +159,8 @@ export default function Dashboard({ user, setUser }) {
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                     />
                   )}
-                  <Icon size={20} className={cn('relative z-10', isActive && 'text-white')} />
-                  <span className={cn('relative z-10 text-[9px] font-medium mt-0.5', isActive ? 'text-white' : 'text-zinc-600')}>
+                  <Icon size={20} className={cn('relative z-10', isActive && 'text-text')} />
+                  <span className={cn('relative z-10 text-[9px] font-medium mt-0.5', isActive ? 'text-text' : 'text-text-muted')}>
                     {item.label}
                   </span>
                 </button>
@@ -174,7 +174,7 @@ export default function Dashboard({ user, setUser }) {
                 activeTab === 'create' ? 'bg-white' : 'bg-gradient-to-tr from-primary to-[#ff8c00]'
               )}
             >
-              <Plus size={22} className={activeTab === 'create' ? 'text-black rotate-45' : 'text-white'} />
+              <Plus size={22} className={activeTab === 'create' ? 'text-black rotate-45' : 'text-text'} />
             </motion.button>
           </div>
         </div>

@@ -51,16 +51,16 @@ export default function AuthScreen({ onLogin, onGuestLogin }) {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.15, type: 'spring', bounce: 0.25 }}
-        className="premium-glass p-8 text-center relative overflow-hidden w-full max-w-sm"
+        className="apple-card p-8 text-center relative overflow-hidden w-full max-w-sm"
       >
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/15 rounded-full blur-[50px] pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/10 rounded-full blur-[50px] pointer-events-none" />
 
         <div className="mb-8 relative z-10">
-          <h2 className="text-4xl font-display font-bold text-gradient mb-3 tracking-tighter">
+          <h2 className="text-4xl font-display font-semibold text-gradient mb-3 tracking-tighter">
             HOOPSHARE
           </h2>
-          <p className="text-zinc-400 font-sans text-sm leading-relaxed max-w-[260px] mx-auto">
+          <p className="text-text-muted font-sans text-sm leading-relaxed max-w-[260px] mx-auto">
             Organise ton match. Partage les frais.
             <span className="block text-primary font-semibold mt-1">Tout le monde paie, personne ne galère.</span>
           </p>
@@ -92,13 +92,13 @@ export default function AuthScreen({ onLogin, onGuestLogin }) {
           whileTap={{ scale: 0.96 }}
           onClick={handleGuest}
           disabled={guestLoading}
-          className="relative z-10 w-full flex items-center justify-center gap-3 bg-transparent text-zinc-400 hover:text-white border border-white/10 hover:bg-white/5 font-semibold py-3.5 px-6 rounded-xl text-sm transition-colors disabled:opacity-60"
+          className="relative z-10 w-full flex items-center justify-center gap-3 bg-transparent text-text-muted hover:text-text border border-border hover:bg-white/5 font-semibold py-3.5 px-6 rounded-xl text-sm transition-colors disabled:opacity-60"
         >
           <UserPlus size={18} />
           {guestLoading ? 'Connexion...' : 'Continuer sans compte'}
         </motion.button>
 
-        <p className="mt-5 text-[11px] text-zinc-600 font-sans relative z-10 leading-relaxed border-t border-white/5 pt-4">
+        <p className="mt-5 text-[11px] text-text-muted font-sans relative z-10 leading-relaxed border-t border-border pt-4">
           En continuant, vous pourrez choisir votre pseudo.
         </p>
       </motion.div>

@@ -38,7 +38,7 @@ export default function GameList({ user, onOpenGame }) {
       }
     } catch(e) {}
 
-    if (isGamePast) return { text: 'Terminé', color: 'text-zinc-500', bg: 'bg-zinc-900/50', border: 'border-zinc-800' };
+    if (isGamePast) return { text: 'Terminé', color: 'text-text-muted', bg: 'bg-zinc-900/50', border: 'border-zinc-800' };
     if (isFull) return { text: 'Complet', color: 'text-red-400', bg: 'bg-red-950/30', border: 'border-red-900/50' };
     return { text: 'Ouvert', color: 'text-emerald-400', bg: 'bg-emerald-950/30', border: 'border-emerald-900/50', active: true };
   };
@@ -58,7 +58,7 @@ export default function GameList({ user, onOpenGame }) {
     return (
       <div className="space-y-4 px-4 pt-4">
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-40 premium-glass skeleton-loader border-none"></div>
+          <div key={i} className="h-40 apple-card skeleton-loader border-none"></div>
         ))}
       </div>
     );
@@ -74,8 +74,8 @@ export default function GameList({ user, onOpenGame }) {
         >
           <BasketballIcon size={72} />
         </motion.div>
-        <h3 className="text-3xl font-display font-bold text-white mb-2 tracking-tight">Aucun match</h3>
-        <p className="text-zinc-400 font-sans">Soyez le premier à créer l&apos;événement.</p>
+        <h3 className="text-3xl font-display font-semibold text-text mb-2 tracking-tight">Aucun match</h3>
+        <p className="text-text-muted font-sans">Soyez le premier à créer l&apos;événement.</p>
       </div>
     );
   }
@@ -91,14 +91,14 @@ export default function GameList({ user, onOpenGame }) {
       <motion.div 
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="hidden lg:flex premium-glass p-4 items-center gap-4 bg-gradient-to-r from-[#140a05] to-[#0a0a0c]"
+        className="hidden lg:flex apple-card p-4 items-center gap-4 bg-gradient-to-r from-[#140a05] to-[#0a0a0c]"
       >
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center border border-primary/30 glow-orange">
           <Trophy className="text-primary" size={24} />
         </div>
         <div className="flex-1">
           <div className="text-[10px] text-primary font-bold uppercase tracking-widest mb-0.5">Prochain Match</div>
-          <div className="text-white font-display font-medium tracking-tight text-lg">{games.length} match{games.length > 1 ? 's' : ''} disponible{games.length > 1 ? 's' : ''}</div>
+          <div className="text-text font-display font-medium tracking-tight text-lg">{games.length} match{games.length > 1 ? 's' : ''} disponible{games.length > 1 ? 's' : ''}</div>
         </div>
       </motion.div>
 
@@ -123,7 +123,7 @@ export default function GameList({ user, onOpenGame }) {
               transition={{ delay: index * 0.08, type: 'spring', bounce: 0.2 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => onOpenGame(game.id)}
-              className="premium-glass cursor-pointer overflow-hidden group relative"
+              className="apple-card cursor-pointer overflow-hidden group relative"
             >
               <div className="p-5">
                 <div className="flex justify-between items-start mb-4">
@@ -142,7 +142,7 @@ export default function GameList({ user, onOpenGame }) {
                   )}
                 </div>
 
-                <h3 className="text-2xl font-display font-bold text-white mb-3 truncate tracking-tight group-hover:text-primary transition-colors">
+                <h3 className="text-2xl font-display font-semibold text-text mb-3 truncate tracking-tight group-hover:text-primary transition-colors">
                   {game.location}
                 </h3>
                 
@@ -156,23 +156,23 @@ export default function GameList({ user, onOpenGame }) {
                   </div>
                 )}
                 
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-zinc-400 font-medium mb-4">
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-text-muted font-medium mb-4">
                   <div className="flex items-center gap-2">
-                    <Calendar size={14} className="text-zinc-500" />
+                    <Calendar size={14} className="text-text-muted" />
                     <span>{game.date} • {game.time}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Users size={14} className="text-zinc-500" />
+                    <Users size={14} className="text-text-muted" />
                     <span>{playersArray.length}{game.maxPlayers ? ` / ${game.maxPlayers}` : ''} joueurs</span>
                   </div>
                 </div>
 
                 {/* Per-person cost — THE key info */}
                 <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
-                  <span className="text-xs text-zinc-400 font-medium flex items-center gap-1.5">
+                  <span className="text-xs text-text-muted font-medium flex items-center gap-1.5">
                     <Wallet size={13} className="text-primary/70" /> Par joueur
                   </span>
-                  <span className="text-lg font-display font-bold text-primary tracking-tight">{game.perHeadCost} {game.currency || 'XOF'}</span>
+                  <span className="text-lg font-display font-semibold text-primary tracking-tight">{game.perHeadCost} {game.currency || 'XOF'}</span>
                 </div>
 
                 {/* Avatar Stack */}
@@ -183,19 +183,19 @@ export default function GameList({ user, onOpenGame }) {
                         {p.photoURL ? (
                           <img src={p.photoURL} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-white font-medium bg-gradient-to-br from-zinc-700 to-zinc-900">
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-text font-medium bg-gradient-to-br from-zinc-700 to-zinc-900">
                             {p.name ? p.name.charAt(0).toUpperCase() : '?'}
                           </div>
                         )}
                       </div>
                     ))}
                     {remainingPlayers > 0 && (
-                      <div className="w-8 h-8 rounded-full bg-zinc-900 border-2 border-[#0a0a0c] flex items-center justify-center text-[10px] text-zinc-400 font-medium relative z-20">
+                      <div className="w-8 h-8 rounded-full bg-zinc-900 border-2 border-[#0a0a0c] flex items-center justify-center text-[10px] text-text-muted font-medium relative z-20">
                         +{remainingPlayers}
                       </div>
                     )}
                     {playersArray.length === 0 && (
-                      <div className="text-xs text-zinc-500 italic ml-1 mt-1.5">Soyez le premier...</div>
+                      <div className="text-xs text-text-muted italic ml-1 mt-1.5">Soyez le premier...</div>
                     )}
                   </div>
                   

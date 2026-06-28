@@ -1,42 +1,45 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 @theme {
-  /* HoopShare Pro Max - Ultra Dark OLED & Neon */
-  --color-primary: #ff4d00; /* Neon Orange */
-  --color-secondary: #ff1a1a; /* Pure Neon Red */
-  --color-cta: #ffb800; /* Pure Gold */
+  --color-primary: var(--primary);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
   
-  --color-background: #000000; /* Pure Black OLED base */
-  --color-surface: #0a0a0c; /* Barely lighter than black */
-  --color-card: rgba(20, 20, 24, 0.6); /* Translucent dark glass */
-  
-  --color-text: #ffffff; 
-  --color-text-muted: #a1a1aa; /* Zinc 400 */
-  
-  --font-sans: "Inter", sans-serif;
-  --font-display: "Outfit", sans-serif;
-  --font-bebas: "Bebas Neue", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   --animate-shimmer: shimmer 2s linear infinite;
-  --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  --animate-spin-slow: spin-slow 8s linear infinite;
 }
 
 @layer base {
+  :root {
+    --primary: #0066cc; /* Apple Action Blue */
+    --background: #f5f5f7; /* Apple Parchment */
+    --surface: #ffffff; /* White cards */
+    --text: #1d1d1f; /* Apple Ink */
+    --text-muted: #86868b;
+    --border: rgba(0, 0, 0, 0.08);
+  }
+
+  .dark {
+    --primary: #2997ff; /* Apple Action Blue Dark */
+    --background: #000000; /* True Black */
+    --surface: #1c1c1e; /* Dark Surface */
+    --text: #f5f5f7;
+    --text-muted: #98989d;
+    --border: rgba(255, 255, 255, 0.15);
+  }
+
   html {
-    font-size: 16px;
+    font-size: 17px; /* Apple reading pace */
     -webkit-tap-highlight-color: transparent;
   }
   
   body {
-    @apply bg-background text-text font-sans antialiased min-h-screen relative overflow-x-hidden;
-    background-color: #000000;
-    background-image: 
-      radial-gradient(circle at 0% 0%, rgba(255, 77, 0, 0.08), transparent 40%),
-      radial-gradient(circle at 100% 100%, rgba(255, 26, 26, 0.05), transparent 40%);
-    background-attachment: fixed;
-    /* Safe area padding for notch devices */
+    @apply bg-background text-text font-sans antialiased min-h-screen relative overflow-x-hidden transition-colors duration-300;
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
@@ -44,41 +47,41 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply font-display tracking-tight font-semibold;
+    letter-spacing: -0.022em; /* -0.374px Apple tightness */
   }
 
-  /* Custom Scrollbar - Minimal */
-  ::-webkit-scrollbar {
-    width: 4px;
+  p, span, div, input, button {
+    letter-spacing: -0.022em;
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #3f3f46;
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #ff4d00;
+    background: var(--text-muted);
+    border-radius: 6px;
   }
 }
 
 @layer utilities {
-  .premium-glass, .glass-card {
-    @apply bg-[#0a0a0c]/60 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl;
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  .apple-card {
+    @apply bg-surface border border-border rounded-3xl transition-colors;
   }
   
-  .glass-panel {
-    @apply bg-[#141418]/50 backdrop-blur-md border border-white/5 rounded-xl;
+  .apple-card-hover {
+    @apply hover:border-primary/50 transition-colors;
   }
 
-  .glow-orange {
-    box-shadow: 0 0 20px rgba(255, 77, 0, 0.4);
+  .apple-button {
+    @apply bg-primary text-white font-display font-semibold rounded-full flex items-center justify-center transition-transform active:scale-[0.97];
   }
-  
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white to-white/50;
+
+  .apple-button-secondary {
+    @apply bg-surface border border-border text-text font-display font-semibold rounded-full flex items-center justify-center transition-transform active:scale-[0.97];
+  }
+
+  .apple-input {
+    @apply w-full p-4 bg-surface border border-border text-text rounded-2xl outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-text-muted;
   }
 
   @keyframes shimmer {
@@ -88,13 +91,8 @@
   
   .skeleton-loader {
     animation: shimmer 2s infinite linear;
-    background: linear-gradient(to right, #18181b 4%, #27272a 25%, #18181b 36%);
+    background: linear-gradient(to right, var(--surface) 4%, var(--border) 25%, var(--surface) 36%);
     background-size: 1000px 100%;
-  }
-
-  @keyframes pulse-slow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
   }
 
   @keyframes fade-in {
@@ -110,63 +108,24 @@
     @apply w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-5 lg:px-8;
   }
 
-  /* 44px minimum touch targets (Apple HIG) */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
   }
 
-  /* Leaflet map — mobile-friendly */
-  .court-map-wrapper {
-    min-height: 220px;
-    height: min(58vw, 280px);
-  }
-
-  .court-map-wrapper--picker {
-    height: min(62vw, 300px);
-  }
-
-  .court-map-wrapper--session {
-    height: min(55vw, 260px);
-  }
-
+  .court-map-wrapper { height: min(58vw, 280px); min-height: 220px; }
+  .court-map-wrapper--picker { height: min(62vw, 300px); }
+  .court-map-wrapper--session { height: min(55vw, 260px); }
+  
   @media (min-width: 640px) {
-    .court-map-wrapper--session {
-      height: 300px;
-    }
-    .court-map-wrapper--picker {
-      height: 320px;
-    }
+    .court-map-wrapper--session { height: 300px; }
+    .court-map-wrapper--picker { height: 320px; }
   }
-
   @media (min-width: 1024px) {
-    .court-map-wrapper--session {
-      height: 340px;
-    }
-    .court-map-wrapper--picker {
-      height: 360px;
-    }
+    .court-map-wrapper--session { height: 340px; }
+    .court-map-wrapper--picker { height: 360px; }
   }
 
-  .court-map-container {
-    background: #0a0a0c;
-    z-index: 0;
-  }
-
-  .court-map-marker {
-    background: transparent !important;
-    border: none !important;
-  }
-
-  .leaflet-control-attribution {
-    font-size: 9px !important;
-    background: rgba(0, 0, 0, 0.65) !important;
-    color: #71717a !important;
-    padding: 2px 6px !important;
-    border-radius: 6px 0 0 0 !important;
-  }
-
-  .leaflet-control-attribution a {
-    color: #a1a1aa !important;
-  }
+  .court-map-container { z-index: 0; }
+  .court-map-marker { background: transparent !important; border: none !important; }
 }

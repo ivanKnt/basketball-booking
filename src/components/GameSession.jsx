@@ -61,7 +61,7 @@ export default function GameSession({ user, gameId, onBack }) {
   if (loading || !game) return (
     <div className="flex flex-col items-center justify-center h-[60vh]">
       <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-      <div className="text-primary font-display font-bold tracking-tight text-2xl uppercase animate-pulse">Chargement...</div>
+      <div className="text-primary font-display font-semibold tracking-tight text-2xl uppercase animate-pulse">Chargement...</div>
     </div>
   );
 
@@ -241,11 +241,11 @@ export default function GameSession({ user, gameId, onBack }) {
   return (
     <div className="animate-fade-in max-w-5xl mx-auto space-y-6 pb-24 lg:pb-8">
       {/* Action Bar */}
-      <div className="flex justify-between items-center bg-black/40 p-2 sm:p-2.5 rounded-2xl border border-white/5 backdrop-blur-md sticky top-[max(env(safe-area-inset-top),4.5rem)] z-40 gap-2">
-        <button onClick={onBack} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white transition-colors touch-target">
+      <div className="flex justify-between items-center bg-surface p-2 sm:p-2.5 rounded-2xl border border-border sticky top-[max(env(safe-area-inset-top),4.5rem)] z-40 gap-2">
+        <button onClick={onBack} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-white/5 text-text-muted hover:bg-white/10 hover:text-text transition-colors touch-target">
           <ArrowLeft size={20} />
         </button>
-        <div className="font-display font-bold text-base sm:text-lg text-white tracking-tight px-1 truncate flex-1 text-center min-w-0">
+        <div className="font-display font-semibold text-base sm:text-lg text-text tracking-tight px-1 truncate flex-1 text-center min-w-0">
           {game.location}
         </div>
         <div className="flex gap-1.5 shrink-0">
@@ -260,7 +260,7 @@ export default function GameSession({ user, gameId, onBack }) {
       </div>
 
       {/* Hero Card */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="premium-glass p-6 md:p-8 rounded-3xl overflow-hidden relative">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="apple-card p-6 md:p-8 rounded-3xl overflow-hidden relative">
         {game.courtImageUrl && (
           <div className="absolute inset-0 z-0">
             <img src={game.courtImageUrl} alt="Terrain" className="w-full h-full object-cover opacity-20 mix-blend-luminosity" />
@@ -271,24 +271,24 @@ export default function GameSession({ user, gameId, onBack }) {
         
         <div className="flex justify-between items-start mb-5 relative z-10">
           <div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight drop-shadow-md leading-tight">{game.location}</h1>
+            <h1 className="text-4xl md:text-5xl font-display font-semibold text-text tracking-tight drop-shadow-md leading-tight">{game.location}</h1>
             <div className="text-primary font-medium text-sm mt-2">{game.date} • {game.time} • {duration}h</div>
           </div>
           {game.maxPlayers && (
-            <div className={`px-4 py-1.5 font-bold rounded-full text-[10px] uppercase tracking-widest border ${isFull ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-white/5 text-zinc-400 border-white/10'}`}>
+            <div className={`px-4 py-1.5 font-bold rounded-full text-[10px] uppercase tracking-widest border ${isFull ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-white/5 text-text-muted border-border'}`}>
               {rsvps.length} / {game.maxPlayers} Joueurs
             </div>
           )}
         </div>
 
         {/* Cost Breakdown */}
-        <div className="bg-[#0a0a0c]/80 rounded-2xl border border-white/5 p-5 mt-4 relative z-10 space-y-3 text-sm shadow-inner">
-          <div className="flex justify-between text-zinc-300">
+        <div className="bg-surface rounded-2xl border border-border p-5 mt-4 relative z-10 space-y-3 text-sm shadow-inner">
+          <div className="flex justify-between text-text-muted">
             <span className="font-medium flex items-center gap-2"><CircleDot size={14} className="text-primary" /> {courtCostLabel}</span>
-            <span className="font-bold text-white">{game.perHeadCost || 0} {game.currency || 'XOF'}</span>
+            <span className="font-bold text-text">{game.perHeadCost || 0} {game.currency || 'XOF'}</span>
           </div>
           {!lightIncluded && lightCostPerHour > 0 && (
-            <div className="flex justify-between text-zinc-300">
+            <div className="flex justify-between text-text-muted">
               <span className="font-medium flex items-center gap-2"><Lightbulb size={14} className="text-amber-400" /> Lumière ({lightCostPerHour} × {duration}h ÷ {game.maxPlayers || '?'} j.)</span>
               <span className="font-bold text-amber-400">Cotisation séparée</span>
             </div>
@@ -300,7 +300,7 @@ export default function GameSession({ user, gameId, onBack }) {
             </div>
           )}
           {game.notes && (
-            <div className="flex items-start gap-2 text-zinc-400 pt-3 border-t border-white/5">
+            <div className="flex items-start gap-2 text-text-muted pt-3 border-t border-border">
               <Info size={14} className="mt-0.5 shrink-0" />
               <span className="text-[13px] leading-relaxed">{game.notes}</span>
             </div>
@@ -316,16 +316,16 @@ export default function GameSession({ user, gameId, onBack }) {
             interactive={false}
             showStylePicker
           />
-          <a href={getDirectionsUrl(resolvedCoords || game.coordinates, game.location)} target="_blank" rel="noopener noreferrer" className="absolute bottom-3 right-3 z-[1001] bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-colors touch-target">
+          <a href={getDirectionsUrl(resolvedCoords || game.coordinates, game.location)} target="_blank" rel="noopener noreferrer" className="absolute bottom-3 right-3 z-[1001] bg-emerald-500 hover:bg-emerald-600 text-text text-[11px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-colors touch-target">
             <Navigation size={14} /> Y aller
           </a>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 justify-between items-center bg-black/40 p-6 rounded-2xl border border-white/5 mt-5 relative z-10">
+        <div className="flex flex-col md:flex-row gap-6 justify-between items-center bg-surface p-6 rounded-2xl border border-border mt-5 relative z-10">
           <div className="text-center md:text-left">
-            <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Tu dois payer</h3>
-            <p className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight">
-              {myCourtCost} <span className="text-sm text-zinc-500 font-normal">{game.currency || 'XOF'}</span>
+            <h3 className="text-[10px] uppercase tracking-widest text-text-muted font-bold mb-1">Tu dois payer</h3>
+            <p className="text-3xl sm:text-4xl font-display font-semibold text-text tracking-tight">
+              {myCourtCost} <span className="text-sm text-text-muted font-normal">{game.currency || 'XOF'}</span>
             </p>
             {myPledges > 0 && (
               <p className="text-xs text-amber-500 mt-1 font-medium">
@@ -338,8 +338,8 @@ export default function GameSession({ user, gameId, onBack }) {
             whileTap={{ scale: 0.96 }}
             onClick={handleToggleRSVP}
             disabled={isSubmitting || (!isAttending && isFull)}
-            className={`w-full sm:w-auto px-6 sm:px-8 py-4 rounded-2xl font-display font-bold tracking-tight text-base sm:text-lg transition-all flex justify-center items-center gap-2 shadow-xl
-              ${isAttending ? 'bg-[#0a0a0c] text-white hover:bg-black border border-white/10' : 
+            className={`w-full sm:w-auto px-6 sm:px-8 py-4 rounded-2xl font-display font-semibold tracking-tight text-base sm:text-lg transition-all flex justify-center items-center gap-2 shadow-xl
+              ${isAttending ? 'bg-surface text-text hover:bg-black border border-border' : 
                 (!isAttending && isFull) ? 'bg-red-950/30 text-red-500 cursor-not-allowed border border-red-900/30 shadow-none' :
                 'bg-white text-black hover:bg-zinc-200'}`}
           >
@@ -358,19 +358,19 @@ export default function GameSession({ user, gameId, onBack }) {
         
         {/* Lights Pool - Only shown when light is NOT included */}
         {!lightIncluded && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-glass p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="apple-card p-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
               <Zap className="text-amber-500" size={20} />
             </div>
-            <h2 className="text-xl font-display font-bold text-white tracking-tight">Cagnotte Lumière</h2>
+            <h2 className="text-xl font-display font-semibold text-text tracking-tight">Cagnotte Lumière</h2>
           </div>
-          <p className="text-sm text-zinc-400 mb-4 font-medium">L'éclairage n'est pas inclus. Contribuez ici pour financer les lumières.</p>
+          <p className="text-sm text-text-muted mb-4 font-medium">L'éclairage n'est pas inclus. Contribuez ici pour financer les lumières.</p>
           
           {/* Recommended per-person contribution */}
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center justify-between">
-            <span className="text-xs text-zinc-400 font-medium flex items-center gap-1.5"><Lightbulb size={12} className="text-amber-400" /> Recommandé / joueur</span>
-            <span className="text-base font-display font-bold text-amber-400 tracking-tight">
+            <span className="text-xs text-text-muted font-medium flex items-center gap-1.5"><Lightbulb size={12} className="text-amber-400" /> Recommandé / joueur</span>
+            <span className="text-base font-display font-semibold text-amber-400 tracking-tight">
               ~{lightPerPerson} {game.currency || 'XOF'}
             </span>
           </div>
@@ -396,14 +396,14 @@ export default function GameSession({ user, gameId, onBack }) {
                 </defs>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xl font-display font-bold text-white">{Math.round(lightProgress)}%</span>
+                <span className="text-xl font-display font-semibold text-text">{Math.round(lightProgress)}%</span>
               </div>
             </div>
             
             <div>
-              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Objectif</div>
-              <div className="text-3xl font-display font-bold text-white tracking-tight">{totalPledged.toLocaleString('fr-FR')} <span className="text-sm font-medium text-amber-500">/ {totalLightNeeded.toLocaleString('fr-FR')}</span></div>
-              <div className="text-[11px] font-medium text-zinc-500 mt-1">
+              <div className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">Objectif</div>
+              <div className="text-3xl font-display font-semibold text-text tracking-tight">{totalPledged.toLocaleString('fr-FR')} <span className="text-sm font-medium text-amber-500">/ {totalLightNeeded.toLocaleString('fr-FR')}</span></div>
+              <div className="text-[11px] font-medium text-text-muted mt-1">
                 {lightCostPerHour.toLocaleString('fr-FR')} {game.currency || 'XOF'}/h × {duration}h
               </div>
             </div>
@@ -422,9 +422,9 @@ export default function GameSession({ user, gameId, onBack }) {
                 value={pledgeAmount}
                 onChange={e => setPledgeAmount(e.target.value)}
                 placeholder={`Montant ${game.currency || 'XOF'}`}
-                className="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors font-display text-lg text-center"
+                className="w-full p-4 bg-surface border border-border rounded-2xl text-text outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors font-display text-lg text-center"
               />
-              <button type="submit" disabled={isSubmitting || pledgeAmount === ''} className="w-full py-4 bg-amber-500 text-black font-display font-bold tracking-tight text-lg rounded-2xl hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/20">
+              <button type="submit" disabled={isSubmitting || pledgeAmount === ''} className="w-full py-4 bg-amber-500 text-black font-display font-semibold tracking-tight text-lg rounded-2xl hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/20">
                 {myPledges > 0 ? 'Modifier ma cotisation' : 'Cotiser'}
               </button>
             </div>
@@ -433,20 +433,20 @@ export default function GameSession({ user, gameId, onBack }) {
         )}
 
         {/* Players List */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="premium-glass flex flex-col min-h-[300px]">
-           <div className="p-6 border-b border-white/5 flex justify-between items-center">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="apple-card flex flex-col min-h-[300px]">
+           <div className="p-6 border-b border-border flex justify-between items-center">
              <div className="flex items-center gap-3">
                <div className="w-10 h-10 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-lg font-display">
                  {rsvps.length}
                </div>
-               <h2 className="text-xl font-display font-bold text-white tracking-tight">Joueurs</h2>
+               <h2 className="text-xl font-display font-semibold text-text tracking-tight">Joueurs</h2>
              </div>
              
              {user.uid === game.organizerId && rsvps.length > 1 && (
                <button 
                  onClick={handleGenerateTeams}
                  disabled={isSubmitting}
-                 className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest bg-white/5 hover:bg-white/10 text-zinc-300 px-4 py-2.5 rounded-full font-bold transition-colors disabled:opacity-50 border border-white/5"
+                 className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest bg-white/5 hover:bg-white/10 text-text-muted px-4 py-2.5 rounded-full font-bold transition-colors disabled:opacity-50 border border-border"
                >
                  <Shuffle size={14} /> Générer Équipes
                </button>
@@ -462,18 +462,18 @@ export default function GameSession({ user, gameId, onBack }) {
                      {game.teamA.map(userId => {
                        const rsvp = rsvps.find(r => r.userId === userId);
                        if (!rsvp) return null;
-                       return <span key={userId} className="text-[13px] font-medium text-white bg-red-500/20 px-4 py-1.5 rounded-full border border-red-500/20">{rsvp.userName}</span>;
+                       return <span key={userId} className="text-[13px] font-medium text-text bg-red-500/20 px-4 py-1.5 rounded-full border border-red-500/20">{rsvp.userName}</span>;
                      })}
                    </div>
                  </div>
-                 <div className="text-center text-[10px] font-bold text-zinc-600 uppercase tracking-widest">VS</div>
+                 <div className="text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">VS</div>
                  <div className="bg-sky-950/20 rounded-2xl p-5 border border-sky-500/10">
                    <h3 className="text-[11px] font-bold text-sky-500 mb-3 uppercase tracking-widest text-center">Équipe Bleue</h3>
                    <div className="flex flex-wrap justify-center gap-2">
                      {game.teamB.map(userId => {
                        const rsvp = rsvps.find(r => r.userId === userId);
                        if (!rsvp) return null;
-                       return <span key={userId} className="text-[13px] font-medium text-white bg-sky-500/20 px-4 py-1.5 rounded-full border border-sky-500/20">{rsvp.userName}</span>;
+                       return <span key={userId} className="text-[13px] font-medium text-text bg-sky-500/20 px-4 py-1.5 rounded-full border border-sky-500/20">{rsvp.userName}</span>;
                      })}
                    </div>
                  </div>
@@ -481,7 +481,7 @@ export default function GameSession({ user, gameId, onBack }) {
              ) : (
                <ul className="space-y-1.5">
                  {rsvps.length === 0 ? (
-                   <div className="text-center text-zinc-500 text-sm py-10 font-medium">Aucun joueur pour le moment.</div>
+                   <div className="text-center text-text-muted text-sm py-10 font-medium">Aucun joueur pour le moment.</div>
                  ) : (
                    [...rsvps].sort((a, b) => {
                      const pledgeA = pledges.filter(p => p.userId === a.userId).reduce((acc, p) => acc + p.amount, 0);
@@ -492,17 +492,17 @@ export default function GameSession({ user, gameId, onBack }) {
                      return (
                        <li key={rsvp.id} className="flex justify-between items-center p-3 rounded-2xl hover:bg-white/5 transition-colors group">
                          <div className="flex items-center gap-4">
-                           <div className="text-[11px] text-zinc-600 font-bold w-4 text-right">{idx + 1}.</div>
-                           <div className="w-10 h-10 rounded-full bg-[#0a0a0c] border border-white/10 flex items-center justify-center overflow-hidden">
-                              {rsvp.photoURL ? <img src={rsvp.photoURL} alt="" className="w-full h-full object-cover"/> : <span className="text-sm font-bold text-zinc-400">{rsvp.userName.charAt(0)}</span>}
+                           <div className="text-[11px] text-text-muted font-bold w-4 text-right">{idx + 1}.</div>
+                           <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center overflow-hidden">
+                              {rsvp.photoURL ? <img src={rsvp.photoURL} alt="" className="w-full h-full object-cover"/> : <span className="text-sm font-bold text-text-muted">{rsvp.userName.charAt(0)}</span>}
                            </div>
-                           <span className="font-semibold text-[15px] text-white tracking-tight">{rsvp.userName}</span>
+                           <span className="font-semibold text-[15px] text-text tracking-tight">{rsvp.userName}</span>
                            {!lightIncluded && topContributorId === rsvp.userId && playerPledge > 0 && (
                               <Crown size={16} className="text-amber-400" title="Top contributeur lumière" />
                             )}
                          </div>
                          <div className="text-right">
-                           <div className="font-bold text-white text-[15px]">{game.perHeadCost + playerPledge} <span className="text-[10px] font-normal text-zinc-500">{game.currency || 'XOF'}</span></div>
+                           <div className="font-bold text-text text-[15px]">{game.perHeadCost + playerPledge} <span className="text-[10px] font-normal text-text-muted">{game.currency || 'XOF'}</span></div>
                            {playerPledge > 0 && (
                              <div className="text-[11px] text-amber-500 font-medium flex items-center justify-end gap-1">
                                +{playerPledge} <Lightbulb size={10} />
@@ -526,10 +526,10 @@ export default function GameSession({ user, gameId, onBack }) {
 
       {user.uid === game.organizerId && (
         <div className="flex justify-center mt-8 gap-4 flex-wrap">
-          <button onClick={handleShareSummary} className="text-[13px] font-bold flex items-center gap-2 text-white bg-[#25D366] hover:bg-[#20bd5a] transition-colors px-6 py-3 rounded-full shadow-lg shadow-green-500/20">
+          <button onClick={handleShareSummary} className="text-[13px] font-bold flex items-center gap-2 text-text bg-[#25D366] hover:bg-[#20bd5a] transition-colors px-6 py-3 rounded-full shadow-lg shadow-green-500/20">
             <MessageCircle size={16} /> Récap WhatsApp
           </button>
-          <button onClick={handleDeleteGame} className="text-[13px] font-medium flex items-center gap-2 text-zinc-500 hover:text-red-400 transition-colors px-4 py-3 rounded-full hover:bg-red-500/10">
+          <button onClick={handleDeleteGame} className="text-[13px] font-medium flex items-center gap-2 text-text-muted hover:text-red-400 transition-colors px-4 py-3 rounded-full hover:bg-red-500/10">
             <Trash2 size={16} /> Supprimer ce match
           </button>
         </div>
@@ -540,20 +540,20 @@ export default function GameSession({ user, gameId, onBack }) {
         {showQR && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-surface p-4"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-              className="bg-[#0a0a0c] border border-white/10 rounded-3xl p-8 max-w-sm w-full relative flex flex-col items-center shadow-2xl"
+              className="bg-surface border border-border rounded-3xl p-8 max-w-sm w-full relative flex flex-col items-center shadow-2xl"
             >
-              <button onClick={() => setShowQR(false)} className="absolute top-4 right-4 text-zinc-500 hover:text-white p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors">
+              <button onClick={() => setShowQR(false)} className="absolute top-4 right-4 text-text-muted hover:text-text p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors">
                 <X size={20} />
               </button>
-              <h3 className="text-2xl font-display font-bold text-white tracking-tight mb-6 text-center">Scanner pour Rejoindre</h3>
+              <h3 className="text-2xl font-display font-semibold text-text tracking-tight mb-6 text-center">Scanner pour Rejoindre</h3>
               <div className="bg-white p-5 rounded-2xl mb-6 shadow-inner">
                 <QRCodeSVG value={window.location.href} size={200} fgColor="#000000" bgColor="#ffffff" />
               </div>
-              <p className="text-zinc-400 text-sm text-center font-medium">Partagez ce code avec les joueurs sur place.</p>
+              <p className="text-text-muted text-sm text-center font-medium">Partagez ce code avec les joueurs sur place.</p>
             </motion.div>
           </motion.div>
         )}

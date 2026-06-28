@@ -58,20 +58,20 @@ export default function CourtMap({
   const mapZoom = position ? Math.max(zoom, 15) : zoom;
 
   return (
-    <div className={cn('court-map-wrapper relative rounded-2xl overflow-hidden border border-white/10', className)}>
+    <div className={cn('court-map-wrapper relative rounded-2xl overflow-hidden border border-border', className)}>
       {showStylePicker && (
         <div className="absolute top-3 right-3 z-[1000] flex flex-col items-end gap-1.5">
           <button
             type="button"
             onClick={() => setPickerOpen(!pickerOpen)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 text-zinc-300 text-[11px] font-medium hover:text-white transition-colors touch-target"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface border border-border text-text-muted text-[11px] font-medium hover:text-text transition-colors touch-target"
             aria-label="Changer le style de carte"
           >
             <Layers size={13} />
             <span className="hidden sm:inline">{style.label}</span>
           </button>
           {pickerOpen && (
-            <div className="flex flex-col gap-1 p-1 rounded-xl bg-black/80 backdrop-blur-xl border border-white/10 shadow-2xl min-w-[120px]">
+            <div className="flex flex-col gap-1 p-1 rounded-xl bg-surface border border-border shadow-2xl min-w-[120px]">
               {Object.values(MAP_STYLES).map((s) => (
                 <button
                   key={s.id}
@@ -79,7 +79,7 @@ export default function CourtMap({
                   onClick={() => { setStyleId(s.id); setPickerOpen(false); }}
                   className={cn(
                     'px-3 py-2 rounded-lg text-left text-xs font-medium transition-colors touch-target',
-                    styleId === s.id ? 'bg-primary/20 text-primary' : 'text-zinc-400 hover:bg-white/5 hover:text-white'
+                    styleId === s.id ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-white/5 hover:text-text'
                   )}
                 >
                   {s.label}
@@ -92,7 +92,7 @@ export default function CourtMap({
 
       {hint && (
         <div className="absolute bottom-3 left-3 right-14 z-[1000] pointer-events-none">
-          <p className="text-[10px] text-white/80 bg-black/60 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-white/10 inline-block">
+          <p className="text-[10px] text-text/80 bg-surface px-2.5 py-1.5 rounded-lg border border-border inline-block">
             {hint}
           </p>
         </div>

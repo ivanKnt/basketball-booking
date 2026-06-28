@@ -52,15 +52,15 @@ function ResultRow({ place, query, isActive, isRecent, onSelect, onMouseEnter })
         'w-9 h-9 rounded-xl flex items-center justify-center shrink-0',
         isRecent ? 'bg-zinc-800' : 'bg-white/5'
       )}>
-        {isRecent ? <Clock size={15} className="text-zinc-400" /> : <PlaceIcon type={place.type} />}
+        {isRecent ? <Clock size={15} className="text-text-muted" /> : <PlaceIcon type={place.type} />}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-white font-medium text-[15px] leading-snug truncate">
+        <p className="text-text font-medium text-[15px] leading-snug truncate">
           <HighlightMatch text={place.name} query={query} />
         </p>
         {(place.subtitle || typeLabel) && (
-          <p className="text-zinc-500 text-xs mt-0.5 truncate">
-            {typeLabel && <span className="text-zinc-600">{typeLabel} · </span>}
+          <p className="text-text-muted text-xs mt-0.5 truncate">
+            {typeLabel && <span className="text-text-muted">{typeLabel} · </span>}
             {place.subtitle}
           </p>
         )}
@@ -208,7 +208,7 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      <label className="block text-[11px] font-bold text-zinc-400 mb-2 uppercase tracking-widest pl-1">
+      <label className="block text-[11px] font-bold text-text-muted mb-2 uppercase tracking-widest pl-1">
         Lieu / Terrain *
       </label>
       <div className="relative group">
@@ -240,12 +240,12 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
           }}
           onKeyDown={handleKeyDown}
           placeholder="Chercher un terrain, quartier, ville..."
-          className="w-full p-4 pl-12 pr-12 bg-[#1a1a1c] border border-white/10 rounded-2xl text-base text-white outline-none focus:border-primary/40 focus:bg-[#222225] focus:ring-1 focus:ring-primary/20 transition-all font-sans shadow-inner placeholder:text-zinc-600"
+          className="w-full p-4 pl-12 pr-12 bg-surface border border-border rounded-2xl text-base text-text outline-none focus:border-primary/40 focus:bg-[#222225] focus:ring-1 focus:ring-primary/20 transition-all font-sans shadow-inner placeholder:text-text-muted"
           role="combobox"
           aria-expanded={open}
           aria-autocomplete="list"
         />
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-primary transition-colors pointer-events-none">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors pointer-events-none">
           {isSearching ? <Loader2 size={18} className="animate-spin text-primary" /> : <Search size={18} />}
         </div>
         {query.length > 0 && (
@@ -258,7 +258,7 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
               setShowDropdown(false);
               inputRef.current?.focus();
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-zinc-500 hover:text-white bg-white/10 rounded-full transition-colors touch-target"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-text-muted hover:text-text bg-white/10 rounded-full transition-colors touch-target"
             aria-label="Effacer"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -273,13 +273,13 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute z-[2000] w-full mt-2 bg-[#141416]/98 border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-2xl"
+            className="absolute z-[2000] w-full mt-2 bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden"
             role="listbox"
           >
             <div className="max-h-[min(50vh,340px)] overflow-y-auto overscroll-contain">
               {showRecent && (
                 <>
-                  <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">Récents</p>
+                  <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Récents</p>
                   <ul>
                     {recent.map((place, i) => (
                       <ResultRow
@@ -328,7 +328,7 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
               )}
 
               {showEmpty && (
-                <p className="px-4 py-4 text-center text-zinc-500 text-sm">
+                <p className="px-4 py-4 text-center text-text-muted text-sm">
                   Aucun lieu trouvé — utilise l&apos;adresse libre ci-dessous
                 </p>
               )}
@@ -349,8 +349,8 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
               )}
             </div>
 
-            <div className="px-3 py-2 border-t border-white/5 bg-black/30">
-              <p className="text-[10px] text-zinc-600 text-center">
+            <div className="px-3 py-2 border-t border-border bg-surface">
+              <p className="text-[10px] text-text-muted text-center">
                 Propulsé par OpenStreetMap · Résultats priorisés Afrique de l&apos;Ouest
               </p>
             </div>

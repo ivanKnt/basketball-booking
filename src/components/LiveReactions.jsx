@@ -84,7 +84,7 @@ export default function LiveReactions({ gameId, user }) {
 
   return (
     <div className="relative">
-      <div className="flex justify-center gap-1.5 mb-4 bg-black/40 p-2 rounded-2xl border border-white/5 w-max mx-auto backdrop-blur-md lg:gap-2">
+      <div className="flex justify-center gap-1.5 mb-4 bg-surface p-2 rounded-2xl border border-border w-max mx-auto lg:gap-2">
         {REACTIONS.map(({ id, Icon, color, bg, custom }) => (
           <motion.button
             key={id}

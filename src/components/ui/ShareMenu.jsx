@@ -43,20 +43,20 @@ export default function ShareMenu({ onShare, onWhatsApp, className }) {
               initial={{ opacity: 0, scale: 0.95, y: -4 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -4 }}
-              className="absolute right-0 top-12 z-50 min-w-[200px] premium-glass p-2 rounded-xl shadow-2xl"
+              className="absolute right-0 top-12 z-50 min-w-[200px] apple-card p-2 rounded-xl shadow-2xl"
             >
               <button
                 type="button"
                 onClick={() => { onShare?.(); setOpen(false); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-text-muted hover:bg-white/5 hover:text-text transition-colors"
               >
-                <Share2 size={16} className="text-zinc-400" />
+                <Share2 size={16} className="text-text-muted" />
                 Partager le lien
               </button>
               <button
                 type="button"
                 onClick={() => { onWhatsApp?.(); setOpen(false); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-text-muted hover:bg-white/5 hover:text-text transition-colors"
               >
                 <MessageCircle size={16} className="text-green-400" />
                 WhatsApp
@@ -64,9 +64,9 @@ export default function ShareMenu({ onShare, onWhatsApp, className }) {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-text-muted hover:bg-white/5 hover:text-text transition-colors"
               >
-                {copied ? <Check size={16} className="text-emerald-400" /> : <Link2 size={16} className="text-zinc-400" />}
+                {copied ? <Check size={16} className="text-emerald-400" /> : <Link2 size={16} className="text-text-muted" />}
                 {copied ? 'Copié' : 'Copier le lien'}
               </button>
             </motion.div>

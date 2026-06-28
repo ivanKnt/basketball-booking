@@ -118,12 +118,12 @@ export default function ExploreCourts({ user, onSelectCourt }) {
         }
       />
 
-      <div className="flex items-center bg-black/40 p-2 rounded-2xl border border-white/5 backdrop-blur-md sticky top-4 z-30 lg:max-w-md">
-        <Search className="ml-3 text-zinc-500 shrink-0" size={16} />
+      <div className="flex items-center bg-surface p-2 rounded-2xl border border-border sticky top-4 z-30 lg:max-w-md">
+        <Search className="ml-3 text-text-muted shrink-0" size={16} />
         <input
           type="text"
           placeholder="Rechercher un terrain..."
-          className="flex-1 bg-transparent py-2.5 px-3 text-white text-sm outline-none placeholder:text-zinc-600"
+          className="flex-1 bg-transparent py-2.5 px-3 text-text text-sm outline-none placeholder:text-text-muted"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -131,20 +131,20 @@ export default function ExploreCourts({ user, onSelectCourt }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
         {filteredCourts.length === 0 ? (
-          <div className="col-span-full text-center py-12 bg-white/5 rounded-3xl border border-white/5">
-            <MapPin className="mx-auto text-zinc-600 mb-4" size={48} />
-            <h3 className="text-xl font-display font-bold text-white mb-2">Aucun terrain trouvé</h3>
-            <p className="text-zinc-400 text-sm">Soyez le premier à ajouter votre terrain de jeu favori !</p>
+          <div className="col-span-full text-center py-12 bg-white/5 rounded-3xl border border-border">
+            <MapPin className="mx-auto text-text-muted mb-4" size={48} />
+            <h3 className="text-xl font-display font-semibold text-text mb-2">Aucun terrain trouvé</h3>
+            <p className="text-text-muted text-sm">Soyez le premier à ajouter votre terrain de jeu favori !</p>
           </div>
         ) : (
           filteredCourts.map(court => (
             <motion.div 
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               key={court.id} 
-              className="premium-glass rounded-3xl overflow-hidden group border border-white/5 hover:border-white/20 transition-all cursor-pointer"
+              className="apple-card rounded-3xl overflow-hidden group border border-border hover:border-border transition-all cursor-pointer"
               onClick={() => onSelectCourt && onSelectCourt(court)}
             >
-              <div className="h-48 bg-black/40 relative overflow-hidden flex items-center justify-center">
+              <div className="h-48 bg-surface relative overflow-hidden flex items-center justify-center">
                 {court.imageUrl ? (
                   <img src={court.imageUrl} alt={court.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
@@ -152,21 +152,21 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                  <div className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold backdrop-blur-md ${court.type === 'indoor' ? 'bg-indigo-500/80 text-white' : 'bg-emerald-500/80 text-white'}`}>
+                  <div className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold  ${court.type === 'indoor' ? 'bg-indigo-500/80 text-text' : 'bg-emerald-500/80 text-text'}`}>
                     {court.type === 'indoor' ? 'Intérieur' : 'Extérieur'}
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold backdrop-blur-md ${court.price === 'free' ? 'bg-green-500/80 text-white' : 'bg-amber-500/80 text-white'}`}>
+                  <div className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-bold  ${court.price === 'free' ? 'bg-green-500/80 text-text' : 'bg-amber-500/80 text-text'}`}>
                     {court.price === 'free' ? 'Gratuit' : 'Payant'}
                   </div>
                 </div>
                 <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-xl font-display font-bold text-white tracking-tight drop-shadow-md">{court.name}</h3>
-                  {court.city && <div className="text-xs font-medium text-zinc-300 drop-shadow-md mt-1 flex items-center gap-1"><MapPin size={10} /> {court.city}</div>}
+                  <h3 className="text-xl font-display font-semibold text-text tracking-tight drop-shadow-md">{court.name}</h3>
+                  {court.city && <div className="text-xs font-medium text-text-muted drop-shadow-md mt-1 flex items-center gap-1"><MapPin size={10} /> {court.city}</div>}
                 </div>
               </div>
               <div className="p-5">
                 {court.notes && (
-                  <p className="text-sm text-zinc-400 mb-4 line-clamp-2">{court.notes}</p>
+                  <p className="text-sm text-text-muted mb-4 line-clamp-2">{court.notes}</p>
                 )}
                 {court.price === 'paid' && court.priceDetails && (
                   <p className="text-[11px] text-amber-500/80 mb-4 font-medium flex items-center gap-1.5">
@@ -178,7 +178,7 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                     <a 
                       href={`https://www.google.com/maps/dir/?api=1&destination=${court.coordinates.lat},${court.coordinates.lng}`} 
                       target="_blank" rel="noopener noreferrer"
-                      className="text-[10px] uppercase tracking-widest font-bold bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
+                      className="text-[10px] uppercase tracking-widest font-bold bg-white/10 hover:bg-white/20 text-text px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
                       onClick={e => e.stopPropagation()}
                     >
                       <MapPin size={12} /> Y aller
@@ -200,16 +200,16 @@ export default function ExploreCourts({ user, onSelectCourt }) {
         {showAddModal && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col sm:items-center sm:justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4"
+            className="fixed inset-0 z-50 flex flex-col sm:items-center sm:justify-center bg-surface p-0 sm:p-4"
           >
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-              className="bg-[#0a0a0c] sm:border border-white/10 sm:rounded-3xl w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg flex flex-col"
+              className="bg-surface sm:border border-border sm:rounded-3xl w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg flex flex-col"
             >
-              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 sticky top-0 bg-[#0a0a0c]/90 backdrop-blur-md z-10 sm:rounded-t-3xl">
-                <h2 className="text-xl sm:text-2xl font-display font-bold text-white tracking-tight">Nouveau Terrain</h2>
-                <button type="button" onClick={() => setShowAddModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-zinc-400 hover:text-white transition-colors">
+              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-border sticky top-0 bg-surface z-10 sm:rounded-t-3xl">
+                <h2 className="text-xl sm:text-2xl font-display font-semibold text-text tracking-tight">Nouveau Terrain</h2>
+                <button type="button" onClick={() => setShowAddModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-text-muted hover:text-text transition-colors">
                   <X size={16} />
                 </button>
               </div>
@@ -218,20 +218,20 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                 
                 {/* Image Upload */}
                 <div>
-                  <label className="block text-[10px] font-bold text-zinc-400 mb-2 uppercase tracking-widest pl-1">Photo du terrain</label>
-                  <label className={`relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-colors overflow-hidden ${imagePreview ? 'border-primary/50' : 'border-white/10 hover:border-white/30 bg-black/40'}`}>
+                  <label className="block text-[10px] font-bold text-text-muted mb-2 uppercase tracking-widest pl-1">Photo du terrain</label>
+                  <label className={`relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-colors overflow-hidden ${imagePreview ? 'border-primary/50' : 'border-border hover:border-border bg-surface'}`}>
                     {imagePreview ? (
                       <>
                         <img src={imagePreview} alt="Preview" className="w-full h-full object-cover opacity-60" />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
-                          <span className="text-white font-bold text-sm bg-black/60 px-4 py-2 rounded-full">Changer la photo</span>
+                        <div className="absolute inset-0 flex items-center justify-center bg-surface opacity-0 hover:opacity-100 transition-opacity">
+                          <span className="text-text font-bold text-sm bg-surface px-4 py-2 rounded-full">Changer la photo</span>
                         </div>
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <ImagePlus className="w-8 h-8 text-zinc-500 mb-3" />
-                        <p className="text-sm text-zinc-400 font-medium">Appuyez pour ajouter une photo</p>
-                        <p className="text-xs text-zinc-600 mt-1">PNG, JPG jusqu'à 5MB</p>
+                        <ImagePlus className="w-8 h-8 text-text-muted mb-3" />
+                        <p className="text-sm text-text-muted font-medium">Appuyez pour ajouter une photo</p>
+                        <p className="text-xs text-text-muted mt-1">PNG, JPG jusqu'à 5MB</p>
                       </div>
                     )}
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
@@ -251,9 +251,9 @@ export default function ExploreCourts({ user, onSelectCourt }) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1">Type de Terrain</label>
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Type de Terrain</label>
                     <select 
-                      className="w-full p-4 bg-black/40 border border-white/5 text-white rounded-2xl outline-none focus:border-primary appearance-none"
+                      className="w-full p-4 bg-surface border border-border text-text rounded-2xl outline-none focus:border-primary appearance-none"
                       value={newCourt.type}
                       onChange={e => setNewCourt(prev => ({ ...prev, type: e.target.value }))}
                     >
@@ -262,9 +262,9 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1">Tarif</label>
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Tarif</label>
                     <select 
-                      className="w-full p-4 bg-black/40 border border-white/5 text-white rounded-2xl outline-none focus:border-primary appearance-none"
+                      className="w-full p-4 bg-surface border border-border text-text rounded-2xl outline-none focus:border-primary appearance-none"
                       value={newCourt.price}
                       onChange={e => setNewCourt(prev => ({ ...prev, price: e.target.value }))}
                     >
@@ -275,11 +275,11 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1">Ville / Quartier</label>
+                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Ville / Quartier</label>
                   <input 
                     type="text"
                     required
-                    className="w-full p-4 bg-black/40 border border-white/5 text-white rounded-2xl outline-none focus:border-primary placeholder:text-zinc-600"
+                    className="w-full p-4 bg-surface border border-border text-text rounded-2xl outline-none focus:border-primary placeholder:text-text-muted"
                     placeholder="ex. Dakar, Mermoz"
                     value={newCourt.city}
                     onChange={e => setNewCourt(prev => ({ ...prev, city: e.target.value }))}
@@ -288,10 +288,10 @@ export default function ExploreCourts({ user, onSelectCourt }) {
 
                 {newCourt.price === 'paid' && (
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1">Détails du prix</label>
+                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Détails du prix</label>
                     <input 
                       type="text"
-                      className="w-full p-4 bg-black/40 border border-white/5 text-white rounded-2xl outline-none focus:border-amber-500 placeholder:text-zinc-600"
+                      className="w-full p-4 bg-surface border border-border text-text rounded-2xl outline-none focus:border-amber-500 placeholder:text-text-muted"
                       placeholder="ex. 10000 XOF/heure, ou Abonnement"
                       value={newCourt.priceDetails}
                       onChange={e => setNewCourt(prev => ({ ...prev, priceDetails: e.target.value }))}
@@ -300,9 +300,9 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1">Détails & Avis personnels</label>
+                  <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest pl-1">Détails & Avis personnels</label>
                   <textarea 
-                    className="w-full p-4 bg-black/40 border border-white/5 text-white rounded-2xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-zinc-600 font-sans shadow-inner min-h-[100px]"
+                    className="w-full p-4 bg-surface border border-border text-text rounded-2xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-text-muted font-sans shadow-inner min-h-[100px]"
                     placeholder="Comment sont les filets ? Y a-t-il du monde le soir ? Code d'entrée ?"
                     value={newCourt.notes}
                     onChange={e => setNewCourt(prev => ({ ...prev, notes: e.target.value }))}
@@ -312,7 +312,7 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                 <button 
                   type="submit" 
                   disabled={isSubmitting || !newCourt.name}
-                  className="w-full bg-primary text-black font-display font-bold py-4 rounded-2xl tracking-tight text-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-primary/20"
+                  className="w-full bg-primary text-black font-display font-semibold py-4 rounded-2xl tracking-tight text-lg hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-primary/20"
                 >
                   {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Ajouter le terrain'}
                 </button>
