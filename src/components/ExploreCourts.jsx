@@ -247,23 +247,31 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                 {/* Image Upload */}
                 <div>
                   <label className="block text-[10px] font-bold text-text-muted mb-2 uppercase tracking-widest pl-1">Photo du terrain</label>
-                  <label className={`relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-colors overflow-hidden ${imagePreview ? 'border-primary/50' : 'border-border hover:border-border bg-surface'}`}>
-                    {imagePreview ? (
-                      <>
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover opacity-60" />
-                        <div className="absolute inset-0 flex items-center justify-center bg-surface opacity-0 hover:opacity-100 transition-opacity">
-                          <span className="text-text font-bold text-sm bg-surface px-4 py-2 rounded-full">Changer la photo</span>
+                  {imagePreviews && imagePreviews.length > 0 ? (
+                    <div className="mt-4 flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory hide-scrollbar">
+                      {imagePreviews.map((preview, idx) => (
+                        <div key={idx} className="relative rounded-xl overflow-hidden w-32 shrink-0 aspect-square border border-border snap-start">
+                          <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => {
+                            const newFiles = [...imageFiles]; newFiles.splice(idx, 1);
+                            const newPreviews = [...imagePreviews]; newPreviews.splice(idx, 1);
+                            setImageFiles(newFiles); setImagePreviews(newPreviews);
+                          }} className="absolute top-1 right-1 bg-black/50 p-1.5 rounded-full text-white hover:bg-black/80 transition-colors backdrop-blur-sm">
+                            <X size={12} />
+                          </button>
                         </div>
-                      </>
-                    ) : (
+                      ))}
+                    </div>
+                  ) : (
+                    <label className="relative flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-colors overflow-hidden border-border hover:border-primary/50 bg-surface">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <ImagePlus className="w-8 h-8 text-text-muted mb-3" />
-                        <p className="text-sm text-text-muted font-medium">Appuyez pour ajouter une photo</p>
-                        <p className="text-xs text-text-muted mt-1">PNG, JPG jusqu'à 5MB</p>
+                        <p className="text-sm text-text-muted font-medium">Appuyez pour ajouter des photos</p>
+                        <p className="text-xs text-text-muted mt-1">Jusqu'à 5 images (PNG, JPG, max 5MB)</p>
                       </div>
-                    )}
-                    <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-                  </label>
+                      <input type="file" multiple className="hidden" accept="image/*" onChange={handleImageChange} />
+                    </label>
+                  )}
                 </div>
 
                 <LocationAutocomplete 

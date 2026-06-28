@@ -133,7 +133,11 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
 
     const timer = setTimeout(async () => {
       try {
-        const places = await searchPlaces(query, { signal: controller.signal, bias: userBias || bias });
+        const currentBias = userBias || bias;
+        const places = await searchPlaces(query, { 
+          signal: controller.signal, 
+          bias: currentBias 
+        });
         if (!controller.signal.aborted) {
           setResults(places);
           setShowDropdown(true);
