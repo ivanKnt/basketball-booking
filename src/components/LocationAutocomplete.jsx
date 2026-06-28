@@ -73,7 +73,12 @@ export default function LocationAutocomplete({ value, onChange }) {
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
-            if (e.target.value === '') onChange(null); // Clear parent value
+            if (e.target.value === '') {
+              onChange(null); // Clear parent value
+            } else {
+              // Allow custom names if it's not in the map API
+              onChange({ name: e.target.value, lat: null, lng: null });
+            }
           }}
           onFocus={() => {
             if (results.length > 0) setShowDropdown(true);
