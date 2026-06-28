@@ -70,9 +70,9 @@ export default function GameSession({ user, gameId, onBack }) {
           const teamB = (game.teamB || []).filter(id => id !== user.uid);
           await updateDoc(doc(db, 'games', gameId), { teamA, teamB });
         }
-        await updateDoc(doc(db, 'users', user.uid), {
+        await setDoc(doc(db, 'users', user.uid), {
           matchesPlayed: increment(-1)
-        });
+        }, { merge: true });
       } else {
         await setDoc(rsvpRef, {
           userId: user.uid,
@@ -80,9 +80,9 @@ export default function GameSession({ user, gameId, onBack }) {
           photoURL: user.photoURL || null,
           joinedAt: serverTimestamp()
         });
-        await updateDoc(doc(db, 'users', user.uid), {
+        await setDoc(doc(db, 'users', user.uid), {
           matchesPlayed: increment(1)
-        });
+        }, { merge: true });
         // Confetti explosion
         confetti({
           particleCount: 150,
@@ -109,6 +109,14 @@ export default function GameSession({ user, gameId, onBack }) {
     const diff = newAmount - myPledges; // How much it changed
 
     try {
+      // Clean up any existing pledges by this user to avoid duplicates if they had old random-ID pledges
+      const userPledges = pledges.filter(p => p.userId === user.uid);
+      for (const p of userPledges) {
+        if (p.id !== user.uid) {
+          await deleteDoc(doc(db, 'games', gameId, 'pledges', p.id));
+        }
+      }
+
       if (newAmount === 0) {
         await deleteDoc(pledgeRef);
       } else {
@@ -121,9 +129,9 @@ export default function GameSession({ user, gameId, onBack }) {
       }
       
       if (diff !== 0) {
-        await updateDoc(doc(db, 'users', user.uid), {
+        await setDoc(doc(db, 'users', user.uid), {
           totalContributed: increment(diff)
-        });
+        }, { merge: true });
       }
       
       setPledgeAmount('');
