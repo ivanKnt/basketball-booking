@@ -27,10 +27,17 @@ export default function ExploreCourts({ user, onSelectCourt }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, 'courts'), (snapshot) => {
-      setCourts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      collection(db, 'courts'), 
+      (snapshot) => {
+        setCourts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching courts:", error);
+        setLoading(false);
+      }
+    );
     return () => unsub();
   }, []);
 

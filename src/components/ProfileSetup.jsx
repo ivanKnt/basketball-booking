@@ -58,8 +58,8 @@ export default function ProfileSetup({ user, setUser }) {
                   <Edit3 size={16} />
                 </button>
               </h1>
-              <div className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest inline-block border border-primary/20">
-                Membre Actif
+              <div className="px-4 py-1.5 bg-gradient-to-r from-primary to-[#ff8c00] rounded-full text-[10px] font-bold text-black uppercase tracking-widest inline-block border border-primary/20 shadow-[0_0_15px_rgba(255,77,0,0.4)]">
+                {user.matchesPlayed >= 15 ? 'MVP 🏆' : user.matchesPlayed >= 5 ? 'All-Star ⭐' : 'Rookie 🏀'}
               </div>
               
               {/* REAL Stats */}

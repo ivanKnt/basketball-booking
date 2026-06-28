@@ -80,40 +80,6 @@ export default function GameList({ user, onOpenGame }) {
 
   return (
     <div className="space-y-6 px-4 pt-4 pb-6">
-      {/* User Stats Overview */}
-      {user && (
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="premium-glass p-4 flex flex-col justify-center border-l-2 border-l-emerald-500"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Wallet size={14} className="text-emerald-500" />
-              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Total Cotisé</div>
-            </div>
-            <div className="text-2xl font-display font-bold text-white tracking-tight">
-              {user.totalContributed || 0} <span className="text-xs font-normal text-zinc-500">XOF</span>
-            </div>
-          </motion.div>
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="premium-glass p-4 flex flex-col justify-center border-l-2 border-l-primary"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Activity size={14} className="text-primary" />
-              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Matchs Joués</div>
-            </div>
-            <div className="text-2xl font-display font-bold text-white tracking-tight">
-              {user.matchesPlayed || 0} <span className="text-xs font-normal text-zinc-500">matchs</span>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
       {/* Mini Leaderboard Widget */}
       <motion.div 
         initial={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
