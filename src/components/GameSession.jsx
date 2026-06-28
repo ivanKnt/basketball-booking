@@ -477,7 +477,11 @@ export default function GameSession({ user, gameId, onBack }) {
                  {rsvps.length === 0 ? (
                    <div className="text-center text-zinc-500 text-sm py-10 font-medium">Aucun joueur pour le moment.</div>
                  ) : (
-                   rsvps.map((rsvp, idx) => {
+                   [...rsvps].sort((a, b) => {
+                     const pledgeA = pledges.filter(p => p.userId === a.userId).reduce((acc, p) => acc + p.amount, 0);
+                     const pledgeB = pledges.filter(p => p.userId === b.userId).reduce((acc, p) => acc + p.amount, 0);
+                     return pledgeB - pledgeA;
+                   }).map((rsvp, idx) => {
                      const playerPledge = pledges.filter(p => p.userId === rsvp.userId).reduce((acc, p) => acc + p.amount, 0);
                      return (
                        <li key={rsvp.id} className="flex justify-between items-center p-3 rounded-2xl hover:bg-white/5 transition-colors group">
