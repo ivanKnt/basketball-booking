@@ -1,11 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { doc, collection, onSnapshot, addDoc, setDoc, serverTimestamp, deleteDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { ArrowLeft, CheckCircle, Zap, Trash2, Share2, Shuffle, QrCode, X, Info, Navigation } from 'lucide-react';
+import { ArrowLeft, Zap, Trash2, Share2, Shuffle, QrCode, X, Info, Navigation, CircleDot, Lightbulb, Crown, Check, Ban, MessageCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'motion/react';
-import EmojiReactions from './EmojiReactions';
+import { shareGameInvite, shareGameSummary, shareViaWhatsApp } from '../lib/share';
+import LiveReactions from './LiveReactions';
+import ShareMenu from './ui/ShareMenu';
+import CourtMap from './CourtMap';
+import { getDirectionsUrl } from '../lib/mapStyles';
+import { searchPlaces } from '../lib/geocoding';
 
 export default function GameSession({ user, gameId, onBack }) {
   const [game, setGame] = useState(null);
@@ -15,6 +20,26 @@ export default function GameSession({ user, gameId, onBack }) {
   const [pledgeAmount, setPledgeAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [resolvedCoords, setResolvedCoords] = useState(null);
+
+  useEffect(() => {
+    if (game?.coordinates) {
+      setResolvedCoords(game.coordinates);
+      return;
+    }
+    if (!game?.location) return;
+
+    const controller = new AbortController();
+    searchPlaces(game.location, { signal: controller.signal })
+      .then((places) => {
+        if (places[0]?.lat != null) {
+          setResolvedCoords({ lat: places[0].lat, lng: places[0].lng });
+        }
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, [game?.coordinates, game?.location]);
 
   useEffect(() => {
     const unsubGame = onSnapshot(doc(db, 'games', gameId), (doc) => {
@@ -161,22 +186,20 @@ export default function GameSession({ user, gameId, onBack }) {
     }
   };
 
-  const handleShare = async () => {
-    const text = `🔥 Match prévu à ${game.location} le ${game.date} à ${game.time} !\nFrais: ${game.perHeadCost} ${game.currency || 'XOF'}.\nRejoins-nous sur HoopShare !`;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'HoopShare Match',
-          text: text,
-          url: window.location.href,
-        });
-      } catch (e) {
-        console.error("Error sharing", e);
-      }
-    } else {
-      window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + window.location.href)}`, '_blank');
-    }
+  const handleShare = () => shareGameInvite(game, window.location.href);
+
+  const handleShareWhatsApp = () => {
+    const text = [
+      `Match à ${game.location}`,
+      `${game.date} à ${game.time}`,
+      `${game.perHeadCost} ${game.currency || 'XOF'} par joueur`,
+      '',
+      `Rejoins sur HoopShare : ${window.location.href}`,
+    ].join('\n');
+    shareViaWhatsApp(text);
   };
+
+  const handleShareSummary = () => shareGameSummary(game, rsvps, pledges, window.location.href);
 
   const handleGenerateTeams = async () => {
     if (rsvps.length < 2) return alert("Pas assez de joueurs pour générer des équipes !");
@@ -214,71 +237,25 @@ export default function GameSession({ user, gameId, onBack }) {
     });
   }
 
-  const handleShareSummary = async () => {
-    let text = `🏀 *MATCH DU ${game.date} - ${game.time}*\n`;
-    text += `📍 ${game.location}\n\n`;
-    
-    text += `👥 *JOUEURS (${rsvps.length}/${game.maxPlayers || '?'})* :\n`;
-    if (rsvps.length === 0) {
-      text += `Aucun joueur inscrit.\n`;
-    } else {
-      rsvps.forEach((rsvp, idx) => {
-        const playerPledge = pledges.filter(p => p.userId === rsvp.userId).reduce((acc, p) => acc + p.amount, 0);
-        const totalPaid = game.perHeadCost + playerPledge;
-        text += `${idx + 1}. ${rsvp.userName} - ${totalPaid} ${game.currency || 'XOF'}\n`;
-      });
-    }
-
-    if (!lightIncluded && totalLightNeeded > 0) {
-      text += `\n💡 *LUMIÈRE (${totalPledged} / ${totalLightNeeded} XOF)* :\n`;
-      const lightPledges = pledges.filter(p => p.amount > 0);
-      if (lightPledges.length === 0) {
-        text += `Aucune cotisation.\n`;
-      } else {
-        lightPledges.forEach(p => {
-          text += `- ${p.userName} : ${p.amount} XOF\n`;
-        });
-      }
-    }
-    
-    const totalCollected = (rsvps.length * game.perHeadCost) + totalPledged;
-    text += `\n✅ *Total récolté : ${totalCollected} ${game.currency || 'XOF'}*\n\n`;
-    text += `Rejoins HoopShare : ${window.location.href}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Récapitulatif HoopShare',
-          text: text,
-        });
-      } catch (e) {
-        console.error("Error sharing", e);
-      }
-    } else {
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-    }
-  };
 
   return (
-    <div className="animate-fade-in max-w-4xl mx-auto space-y-6 pb-24 px-2">
+    <div className="animate-fade-in max-w-5xl mx-auto space-y-6 pb-24 lg:pb-8">
       {/* Action Bar */}
-      <div className="flex justify-between items-center bg-black/60 p-3 rounded-full border border-white/5 backdrop-blur-md sticky top-4 z-40 shadow-lg">
-        <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white transition-colors">
+      <div className="flex justify-between items-center bg-black/40 p-2 sm:p-2.5 rounded-2xl border border-white/5 backdrop-blur-md sticky top-[max(env(safe-area-inset-top),4.5rem)] z-40 gap-2">
+        <button onClick={onBack} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-xl bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white transition-colors touch-target">
           <ArrowLeft size={20} />
         </button>
-        <div className="font-display font-bold text-lg text-white tracking-tight px-4 truncate flex-1 text-center">
+        <div className="font-display font-bold text-base sm:text-lg text-white tracking-tight px-1 truncate flex-1 text-center min-w-0">
           {game.location}
         </div>
-        <div className="flex gap-2">
-          <a href={game.coordinates ? `https://www.google.com/maps/dir/?api=1&destination=${game.coordinates.lat},${game.coordinates.lng}` : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(game.location)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors border border-emerald-500/20">
+        <div className="flex gap-1.5 shrink-0">
+          <a href={getDirectionsUrl(game.coordinates, game.location)} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors border border-emerald-500/20 touch-target">
             <Navigation size={18} />
           </a>
           <button onClick={() => setShowQR(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20">
             <QrCode size={18} />
           </button>
-          <button onClick={handleShare} className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors border border-blue-500/20">
-            <Share2 size={18} />
-          </button>
+          <ShareMenu onShare={handleShare} onWhatsApp={handleShareWhatsApp} />
         </div>
       </div>
 
@@ -294,7 +271,7 @@ export default function GameSession({ user, gameId, onBack }) {
         
         <div className="flex justify-between items-start mb-5 relative z-10">
           <div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight drop-shadow-md">{game.location}</h1>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight drop-shadow-md leading-tight">{game.location}</h1>
             <div className="text-primary font-medium text-sm mt-2">{game.date} • {game.time} • {duration}h</div>
           </div>
           {game.maxPlayers && (
@@ -307,19 +284,19 @@ export default function GameSession({ user, gameId, onBack }) {
         {/* Cost Breakdown */}
         <div className="bg-[#0a0a0c]/80 rounded-2xl border border-white/5 p-5 mt-4 relative z-10 space-y-3 text-sm shadow-inner">
           <div className="flex justify-between text-zinc-300">
-            <span className="font-medium flex items-center gap-2">🏀 {courtCostLabel}</span>
+            <span className="font-medium flex items-center gap-2"><CircleDot size={14} className="text-primary" /> {courtCostLabel}</span>
             <span className="font-bold text-white">{game.perHeadCost || 0} {game.currency || 'XOF'}</span>
           </div>
           {!lightIncluded && lightCostPerHour > 0 && (
             <div className="flex justify-between text-zinc-300">
-              <span className="font-medium flex items-center gap-2">💡 Lumière ({lightCostPerHour} × {duration}h ÷ {game.maxPlayers || '?'} j.)</span>
+              <span className="font-medium flex items-center gap-2"><Lightbulb size={14} className="text-amber-400" /> Lumière ({lightCostPerHour} × {duration}h ÷ {game.maxPlayers || '?'} j.)</span>
               <span className="font-bold text-amber-400">Cotisation séparée</span>
             </div>
           )}
           {lightIncluded && (
             <div className="flex justify-between text-emerald-400/80">
-              <span className="font-medium flex items-center gap-2">💡 Éclairage</span>
-              <span className="font-bold">Inclus ✓</span>
+              <span className="font-medium flex items-center gap-2"><Lightbulb size={14} className="text-emerald-400" /> Éclairage</span>
+              <span className="font-bold flex items-center gap-1"><Check size={14} /> Inclus</span>
             </div>
           )}
           {game.notes && (
@@ -331,17 +308,16 @@ export default function GameSession({ user, gameId, onBack }) {
         </div>
 
         {/* Map View */}
-        <div className="mt-5 relative z-10 rounded-2xl overflow-hidden border border-white/5 shadow-inner">
-          <iframe 
-            width="100%" 
-            height="180" 
-            style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(80%)' }} 
-            loading="lazy" 
-            allowFullScreen 
-            src={game.coordinates ? `https://maps.google.com/maps?q=${game.coordinates.lat},${game.coordinates.lng}&t=&z=15&ie=UTF8&iwloc=&output=embed` : `https://maps.google.com/maps?q=${encodeURIComponent(game.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+        <div className="mt-5 relative z-10">
+          <CourtMap
+            className="court-map-wrapper court-map-wrapper--session"
+            coordinates={resolvedCoords}
+            zoom={16}
+            interactive={false}
+            showStylePicker
           />
-          <a href={game.coordinates ? `https://www.google.com/maps/dir/?api=1&destination=${game.coordinates.lat},${game.coordinates.lng}` : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(game.location)}`} target="_blank" rel="noopener noreferrer" className="absolute bottom-3 right-3 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-colors">
-            <Navigation size={14} /> Y ALLER
+          <a href={getDirectionsUrl(resolvedCoords || game.coordinates, game.location)} target="_blank" rel="noopener noreferrer" className="absolute bottom-3 right-3 z-[1001] bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-colors touch-target">
+            <Navigation size={14} /> Y aller
           </a>
         </div>
 
@@ -362,12 +338,18 @@ export default function GameSession({ user, gameId, onBack }) {
             whileTap={{ scale: 0.96 }}
             onClick={handleToggleRSVP}
             disabled={isSubmitting || (!isAttending && isFull)}
-            className={`w-full md:w-auto px-8 py-4 rounded-2xl font-display font-bold tracking-tight text-lg sm:text-xl transition-all flex justify-center items-center gap-2 shadow-xl
+            className={`w-full sm:w-auto px-6 sm:px-8 py-4 rounded-2xl font-display font-bold tracking-tight text-base sm:text-lg transition-all flex justify-center items-center gap-2 shadow-xl
               ${isAttending ? 'bg-[#0a0a0c] text-white hover:bg-black border border-white/10' : 
                 (!isAttending && isFull) ? 'bg-red-950/30 text-red-500 cursor-not-allowed border border-red-900/30 shadow-none' :
                 'bg-white text-black hover:bg-zinc-200'}`}
           >
-            {isAttending ? '❌ Annuler' : (isFull ? '🚫 Complet' : `✅ Je participe · ${game.perHeadCost} ${game.currency || 'XOF'}`)}
+            {isAttending ? (
+              <><X size={18} /> Annuler</>
+            ) : isFull ? (
+              <><Ban size={18} /> Complet</>
+            ) : (
+              <><Check size={18} /> Je participe · {game.perHeadCost} {game.currency || 'XOF'}</>
+            )}
           </motion.button>
         </div>
       </motion.div>
@@ -387,7 +369,7 @@ export default function GameSession({ user, gameId, onBack }) {
           
           {/* Recommended per-person contribution */}
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center justify-between">
-            <span className="text-xs text-zinc-400 font-medium">💡 Recommandé / joueur</span>
+            <span className="text-xs text-zinc-400 font-medium flex items-center gap-1.5"><Lightbulb size={12} className="text-amber-400" /> Recommandé / joueur</span>
             <span className="text-base font-display font-bold text-amber-400 tracking-tight">
               ~{lightPerPerson} {game.currency || 'XOF'}
             </span>
@@ -516,12 +498,16 @@ export default function GameSession({ user, gameId, onBack }) {
                            </div>
                            <span className="font-semibold text-[15px] text-white tracking-tight">{rsvp.userName}</span>
                            {!lightIncluded && topContributorId === rsvp.userId && playerPledge > 0 && (
-                              <span className="text-xl animate-bounce" title="Top Contributeur Lumière">👑</span>
+                              <Crown size={16} className="text-amber-400" title="Top contributeur lumière" />
                             )}
                          </div>
                          <div className="text-right">
                            <div className="font-bold text-white text-[15px]">{game.perHeadCost + playerPledge} <span className="text-[10px] font-normal text-zinc-500">{game.currency || 'XOF'}</span></div>
-                           {playerPledge > 0 && <div className="text-[11px] text-amber-500 font-medium">+{playerPledge} 💡</div>}
+                           {playerPledge > 0 && (
+                             <div className="text-[11px] text-amber-500 font-medium flex items-center justify-end gap-1">
+                               +{playerPledge} <Lightbulb size={10} />
+                             </div>
+                           )}
                          </div>
                        </li>
                      );
@@ -535,13 +521,13 @@ export default function GameSession({ user, gameId, onBack }) {
       </div>
 
       <div className="mt-8">
-        <EmojiReactions gameId={gameId} user={user} />
+        <LiveReactions gameId={gameId} user={user} />
       </div>
 
       {user.uid === game.organizerId && (
         <div className="flex justify-center mt-8 gap-4 flex-wrap">
-          <button onClick={handleShareSummary} className="text-[13px] font-bold flex items-center gap-2 text-white bg-green-500 hover:bg-green-600 transition-colors px-6 py-3 rounded-full shadow-lg shadow-green-500/20">
-            <Share2 size={16} /> Partager Récap WhatsApp
+          <button onClick={handleShareSummary} className="text-[13px] font-bold flex items-center gap-2 text-white bg-[#25D366] hover:bg-[#20bd5a] transition-colors px-6 py-3 rounded-full shadow-lg shadow-green-500/20">
+            <MessageCircle size={16} /> Récap WhatsApp
           </button>
           <button onClick={handleDeleteGame} className="text-[13px] font-medium flex items-center gap-2 text-zinc-500 hover:text-red-400 transition-colors px-4 py-3 rounded-full hover:bg-red-500/10">
             <Trash2 size={16} /> Supprimer ce match

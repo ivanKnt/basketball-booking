@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../lib/firebase';
-import { MapPin, Plus, ImagePlus, Loader2, X, Search } from 'lucide-react';
+import { MapPin, Plus, ImagePlus, Loader2, X, Search, Wallet } from 'lucide-react';
+import PageHeader from './ui/PageHeader';
 import LocationAutocomplete from './LocationAutocomplete';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -104,26 +105,31 @@ export default function ExploreCourts({ user, onSelectCourt }) {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex justify-between items-center bg-black/60 p-3 rounded-full border border-white/5 backdrop-blur-md sticky top-4 z-30">
-        <div className="relative flex-1 mr-4">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-          <input 
-            type="text" 
-            placeholder="Rechercher un terrain..." 
-            className="w-full bg-white/5 border border-white/10 rounded-full py-2.5 pl-11 pr-4 text-white text-sm outline-none focus:border-primary transition-colors"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-primary text-black font-bold px-5 py-2.5 rounded-full hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 whitespace-nowrap text-sm"
-        >
-          <Plus size={16} /> Ajouter
-        </button>
+      <PageHeader
+        title="Terrains"
+        subtitle={`${courts.length} terrain${courts.length > 1 ? 's' : ''} référencé${courts.length > 1 ? 's' : ''}`}
+        action={
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 bg-primary text-black font-bold px-5 py-2.5 rounded-xl hover:bg-primary/90 transition-colors text-sm"
+          >
+            <Plus size={16} /> Ajouter
+          </button>
+        }
+      />
+
+      <div className="flex items-center bg-black/40 p-2 rounded-2xl border border-white/5 backdrop-blur-md sticky top-4 z-30 lg:max-w-md">
+        <Search className="ml-3 text-zinc-500 shrink-0" size={16} />
+        <input
+          type="text"
+          placeholder="Rechercher un terrain..."
+          className="flex-1 bg-transparent py-2.5 px-3 text-white text-sm outline-none placeholder:text-zinc-600"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
         {filteredCourts.length === 0 ? (
           <div className="col-span-full text-center py-12 bg-white/5 rounded-3xl border border-white/5">
             <MapPin className="mx-auto text-zinc-600 mb-4" size={48} />
@@ -163,7 +169,9 @@ export default function ExploreCourts({ user, onSelectCourt }) {
                   <p className="text-sm text-zinc-400 mb-4 line-clamp-2">{court.notes}</p>
                 )}
                 {court.price === 'paid' && court.priceDetails && (
-                  <p className="text-[11px] text-amber-500/80 mb-4 font-medium">💰 {court.priceDetails}</p>
+                  <p className="text-[11px] text-amber-500/80 mb-4 font-medium flex items-center gap-1.5">
+                    <Wallet size={12} /> {court.priceDetails}
+                  </p>
                 )}
                 <div className="flex gap-2">
                   {court.coordinates && (

@@ -89,8 +89,8 @@ function App() {
 
   return (
     <>
-      <header className="bg-slate-900/80 backdrop-blur-md text-white p-4 sticky top-0 z-50 border-b border-white/10 pt-[max(env(safe-area-inset-top),1rem)]">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
+      <header className="bg-black/60 backdrop-blur-xl text-white sticky top-0 z-50 border-b border-white/5 pt-[max(env(safe-area-inset-top),1rem)]">
+        <div className="page-container flex justify-between items-center py-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.5)]">
               <span className="text-white font-bold text-lg font-bebas">H</span>
@@ -115,7 +115,7 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-md md:max-w-4xl mx-auto w-full relative z-10 min-h-[calc(100vh-80px)]">
+      <main className="page-container relative z-10 min-h-[calc(100vh-72px)]">
         {!user ? (
           <AuthScreen onLogin={handleLogin} onGuestLogin={handleGuestLogin} />
         ) : (

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Calendar, MapPin, Users, Trophy, Clock, ChevronRight, Activity, Wallet } from 'lucide-react';
+import { Calendar, Users, Trophy, Clock, Wallet } from 'lucide-react';
+import PageHeader from './ui/PageHeader';
+import BasketballIcon from './BasketballIcon';
 import { motion } from 'motion/react';
 import { formatDistanceToNow, parseISO, isPast } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -65,27 +67,31 @@ export default function GameList({ user, onOpenGame }) {
   if (games.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-center p-8">
-        <motion.div 
-          animate={{ y: [0, -15, 0] }} 
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="text-7xl mb-6 drop-shadow-[0_20px_30px_rgba(255,77,0,0.3)] filter grayscale hover:grayscale-0 transition-all duration-500"
+        <motion.div
+          animate={{ y: [0, -12, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          className="mb-6 drop-shadow-[0_20px_30px_rgba(255,77,0,0.25)]"
         >
-          🏀
+          <BasketballIcon size={72} />
         </motion.div>
         <h3 className="text-3xl font-display font-bold text-white mb-2 tracking-tight">Aucun match</h3>
-        <p className="text-zinc-400 font-sans">Soyez le premier à créer l'événement !</p>
+        <p className="text-zinc-400 font-sans">Soyez le premier à créer l&apos;événement.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 px-4 pt-4 pb-6">
-      {/* Mini Leaderboard Widget */}
+    <div className="space-y-6 pb-6">
+      <PageHeader
+        title="Matchs"
+        subtitle={`${games.length} match${games.length > 1 ? 's' : ''} disponible${games.length > 1 ? 's' : ''}`}
+      />
+
+      {/* Stats strip — desktop only */}
       <motion.div 
-        initial={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.6, type: 'spring' }}
-        className="premium-glass p-4 flex items-center gap-4 bg-gradient-to-r from-[#140a05] to-[#0a0a0c]"
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="hidden lg:flex premium-glass p-4 items-center gap-4 bg-gradient-to-r from-[#140a05] to-[#0a0a0c]"
       >
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center border border-primary/30 glow-orange">
           <Trophy className="text-primary" size={24} />
@@ -94,10 +100,9 @@ export default function GameList({ user, onOpenGame }) {
           <div className="text-[10px] text-primary font-bold uppercase tracking-widest mb-0.5">Prochain Match</div>
           <div className="text-white font-display font-medium tracking-tight text-lg">{games.length} match{games.length > 1 ? 's' : ''} disponible{games.length > 1 ? 's' : ''}</div>
         </div>
-        <ChevronRight size={20} className="text-zinc-600" />
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {games.map((game, index) => {
           const status = getStatusInfo(game);
           const timeLeft = getTimeLeft(game.date, game.time);
@@ -164,7 +169,9 @@ export default function GameList({ user, onOpenGame }) {
 
                 {/* Per-person cost — THE key info */}
                 <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
-                  <span className="text-xs text-zinc-400 font-medium">💰 À payer par joueur</span>
+                  <span className="text-xs text-zinc-400 font-medium flex items-center gap-1.5">
+                    <Wallet size={13} className="text-primary/70" /> Par joueur
+                  </span>
                   <span className="text-lg font-display font-bold text-primary tracking-tight">{game.perHeadCost} {game.currency || 'XOF'}</span>
                 </div>
 

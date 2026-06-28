@@ -1,13 +1,14 @@
 import { useState, useMemo } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { PlusCircle, MapPin, X, Lightbulb, DollarSign, Users, Clock, Info, Navigation2 } from 'lucide-react';
+import { PlusCircle, MapPin, X, Lightbulb, DollarSign, Users, Clock, Info, Navigation2, User, Timer, FileText, Check, CircleDot } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
 import LocationAutocomplete from './LocationAutocomplete';
+import PageHeader from './ui/PageHeader';
+import CourtMap from './CourtMap';
+import { DEFAULT_CENTER } from '../lib/mapStyles';
 
 // Fix leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -19,19 +20,10 @@ L.Icon.Default.mergeOptions({
 
 // Pricing model options
 const PRICING_MODELS = [
-  { id: 'per_person', label: 'Par Joueur', desc: 'Chaque joueur paie un montant fixe', icon: '👤' },
-  { id: 'per_hour', label: 'Par Heure', desc: 'Location du terrain à l\'heure', icon: '⏱️' },
-  { id: 'flat', label: 'Forfait', desc: 'Prix fixe pour toute la session', icon: '📋' },
+  { id: 'per_person', label: 'Par Joueur', desc: 'Chaque joueur paie un montant fixe', icon: User },
+  { id: 'per_hour', label: 'Par Heure', desc: 'Location du terrain à l\'heure', icon: Timer },
+  { id: 'flat', label: 'Forfait', desc: 'Prix fixe pour toute la session', icon: FileText },
 ];
-
-function LocationMarker({ position, setPosition }) {
-  useMapEvents({
-    click(e) {
-      setPosition(e.latlng);
-    },
-  });
-  return position === null ? null : <Marker position={position} />;
-}
 
 export default function CreateGame({ user, onGameCreated, onCancel, initialCourt }) {
   const [formData, setFormData] = useState({
@@ -146,25 +138,25 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
   const update = (key, value) => setFormData(prev => ({ ...prev, [key]: value }));
 
   // Default to Lomé, Togo
-  const defaultCenter = [6.1725, 1.2314];
+  const defaultCenter = DEFAULT_CENTER;
 
   return (
     <div className="pb-10 space-y-6">
-      <div className="flex justify-between items-center px-2">
-        <h2 className="text-3xl font-display font-bold text-white tracking-tight">
-          CRÉER UN MATCH
-        </h2>
-        {onCancel && (
-          <button onClick={onCancel} className="p-2 bg-white/5 border border-white/10 rounded-full text-zinc-400 hover:text-white transition-colors">
+      <PageHeader
+        title="Créer un match"
+        subtitle="Configure le terrain, les joueurs et les frais"
+        action={onCancel && (
+          <button onClick={onCancel} className="p-2 bg-white/5 border border-white/10 rounded-xl text-zinc-400 hover:text-white transition-colors">
             <X size={20} />
           </button>
         )}
-      </div>
+      />
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+        <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-6 lg:space-y-0">
         
-        {/* Section 1: Lieu */}
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="premium-glass p-6 space-y-5">
+        {/* Section 1: Lieu — full width on desktop */}
+        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="premium-glass p-6 space-y-5 lg:col-span-2">
           <div className="flex items-center gap-2 border-b border-white/5 pb-3">
             <MapPin className="text-primary" size={18} />
             <h3 className="font-display font-medium text-lg text-white tracking-wide">Lieu de l'Événement</h3>
@@ -179,11 +171,16 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
                     setFormData(prev => ({
                       ...prev,
                       locationName: placeData.name,
-                      mapPosition: { lat: placeData.lat, lng: placeData.lng }
+                      mapPosition: placeData.lat != null && placeData.lng != null
+                        ? { lat: placeData.lat, lng: placeData.lng }
+                        : prev.mapPosition,
                     }));
-                    setShowMap(true); // Automatically show the map to confirm the location!
+                    if (placeData.lat != null && placeData.lng != null) {
+                      setShowMap(true);
+                    }
                   } else {
                     update('locationName', '');
+                    update('mapPosition', null);
                   }
                 }}
               />
@@ -203,17 +200,19 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
                 {showMap && (
                   <motion.div 
                     initial={{ opacity: 0, height: 0 }} 
-                    animate={{ opacity: 1, height: 200 }} 
+                    animate={{ opacity: 1, height: 'auto' }} 
                     exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden rounded-xl border border-white/10 mt-2"
+                    className="overflow-hidden mt-2"
                   >
-                    <MapContainer center={defaultCenter} zoom={12} scrollWheelZoom={false} style={{ height: '200px', width: '100%', zIndex: 0 }}>
-                      <TileLayer
-                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                      />
-                      <LocationMarker position={formData.mapPosition} setPosition={(pos) => update('mapPosition', pos)} />
-                    </MapContainer>
+                    <CourtMap
+                      className="court-map-wrapper court-map-wrapper--picker"
+                      coordinates={formData.mapPosition ? { lat: formData.mapPosition.lat, lng: formData.mapPosition.lng } : null}
+                      center={formData.mapPosition ? [formData.mapPosition.lat, formData.mapPosition.lng] : defaultCenter}
+                      zoom={formData.mapPosition ? 16 : 12}
+                      interactive
+                      onPositionChange={(pos) => update('mapPosition', pos)}
+                      hint="Appuie sur la carte pour placer le repère"
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -366,7 +365,9 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
                       : 'bg-black/40 border-white/5 hover:border-white/20'
                   }`}
                 >
-                  <div className="text-2xl mb-1">{model.icon}</div>
+                  <div className="flex justify-center mb-1.5">
+                    <model.icon size={22} className={formData.pricingModel === model.id ? 'text-yellow-400' : 'text-zinc-500'} />
+                  </div>
                   <div className={`text-[11px] font-medium tracking-wide ${formData.pricingModel === model.id ? 'text-yellow-400' : 'text-zinc-400'}`}>{model.label}</div>
                 </button>
               ))}
@@ -414,7 +415,7 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
                   : 'bg-black/40 text-zinc-400 border-white/5'
               }`}
             >
-              ✅ Inclus dans le prix
+              <span className="flex items-center justify-center gap-1.5"><Check size={14} /> Inclus</span>
             </button>
             <button 
               type="button"
@@ -425,7 +426,7 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
                   : 'bg-black/40 text-zinc-400 border-white/5'
               }`}
             >
-              💡 Cotisation séparée
+              <span className="flex items-center justify-center gap-1.5"><Lightbulb size={14} /> Cotisation séparée</span>
             </button>
           </div>
 
@@ -471,7 +472,9 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
           />
         </motion.div>
 
-        {/* Cost Breakdown Preview */}
+        </div>
+
+        {/* Cost Breakdown Preview — full width */}
         <AnimatePresence>
           {Number(formData.courtCost) > 0 && (
             <motion.div 
@@ -490,12 +493,12 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
               
               <div className="space-y-4 font-sans relative z-10">
                 <div className="flex justify-between items-center text-zinc-300">
-                  <span className="flex items-center gap-2 text-sm font-medium">🏀 Terrain / joueur</span>
+                  <span className="flex items-center gap-2 text-sm font-medium"><CircleDot size={14} className="text-primary" /> Terrain / joueur</span>
                   <span className="font-semibold text-white">{costBreakdown.courtPerPerson.toLocaleString('fr-FR')} {formData.currency}</span>
                 </div>
                 {!formData.lightIncluded && Number(formData.lightCostPerHour) > 0 && (
                   <div className="flex justify-between items-center text-zinc-300">
-                    <span className="flex items-center gap-2 text-sm font-medium">💡 Lumière / joueur</span>
+                    <span className="flex items-center gap-2 text-sm font-medium"><Lightbulb size={14} className="text-amber-400" /> Lumière / joueur</span>
                     <span className="font-semibold text-white">{costBreakdown.lightPerPerson.toLocaleString('fr-FR')} {formData.currency}</span>
                   </div>
                 )}

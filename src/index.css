@@ -97,8 +97,76 @@
     50% { opacity: 0.7; }
   }
 
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.35s ease-out forwards;
+  }
+
+  .page-container {
+    @apply w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-5 lg:px-8;
+  }
+
+  /* 44px minimum touch targets (Apple HIG) */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Leaflet map — mobile-friendly */
+  .court-map-wrapper {
+    min-height: 220px;
+    height: min(58vw, 280px);
+  }
+
+  .court-map-wrapper--picker {
+    height: min(62vw, 300px);
+  }
+
+  .court-map-wrapper--session {
+    height: min(55vw, 260px);
+  }
+
+  @media (min-width: 640px) {
+    .court-map-wrapper--session {
+      height: 300px;
+    }
+    .court-map-wrapper--picker {
+      height: 320px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .court-map-wrapper--session {
+      height: 340px;
+    }
+    .court-map-wrapper--picker {
+      height: 360px;
+    }
+  }
+
+  .court-map-container {
+    background: #0a0a0c;
+    z-index: 0;
+  }
+
+  .court-map-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 9px !important;
+    background: rgba(0, 0, 0, 0.65) !important;
+    color: #71717a !important;
+    padding: 2px 6px !important;
+    border-radius: 6px 0 0 0 !important;
+  }
+
+  .leaflet-control-attribution a {
+    color: #a1a1aa !important;
   }
 }
