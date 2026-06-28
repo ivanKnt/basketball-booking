@@ -284,7 +284,13 @@ export default function GameSession({ user, gameId, onBack }) {
 
       {/* Hero Card */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="premium-glass p-6 md:p-8 rounded-3xl overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+        {game.courtImageUrl && (
+          <div className="absolute inset-0 z-0">
+            <img src={game.courtImageUrl} alt="Terrain" className="w-full h-full object-cover opacity-20 mix-blend-luminosity" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-black/50 to-transparent"></div>
+          </div>
+        )}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none z-0"></div>
         
         <div className="flex justify-between items-start mb-5 relative z-10">
           <div>

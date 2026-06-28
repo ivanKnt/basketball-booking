@@ -3,8 +3,9 @@ import ProfileSetup from './ProfileSetup';
 import GameList from './GameList';
 import CreateGame from './CreateGame';
 import GameSession from './GameSession';
+import ExploreCourts from './ExploreCourts';
 import { motion, AnimatePresence } from 'motion/react';
-import { CalendarDays, Plus, User } from 'lucide-react';
+import { CalendarDays, Plus, User, Map } from 'lucide-react';
 
 export default function Dashboard({ user, setUser }) {
   const [activeTab, setActiveTab] = useState(() => {
@@ -16,6 +17,7 @@ export default function Dashboard({ user, setUser }) {
     return params.get('gameId') || null;
   });
   const [pendingTab, setPendingTab] = useState(null);
+  const [selectedCourt, setSelectedCourt] = useState(null);
 
   useEffect(() => {
     if (!user.profileName && activeTab !== 'profile') {
@@ -45,13 +47,29 @@ export default function Dashboard({ user, setUser }) {
           )}
           {activeTab === 'games' && (
             <div key="games" className="animate-fade-in">
-              <GameList onOpenGame={handleOpenGame} />
+              <GameList user={user} onOpenGame={handleOpenGame} />
+            </div>
+          )}
+          {activeTab === 'explore' && (
+            <div key="explore" className="animate-fade-in px-4 pt-4">
+              <ExploreCourts 
+                user={user} 
+                onSelectCourt={(court) => {
+                  setSelectedCourt(court);
+                  setActiveTab('create');
+                }} 
+              />
             </div>
           )}
           {activeTab === 'create' && (
             <div key="create" className="animate-fade-in">
               <div className="px-4 pt-4">
-                <CreateGame user={user} onGameCreated={handleOpenGame} onCancel={() => setActiveTab('games')} />
+                <CreateGame 
+                  user={user} 
+                  initialCourt={selectedCourt}
+                  onGameCreated={handleOpenGame} 
+                  onCancel={() => setActiveTab('games')} 
+                />
               </div>
             </div>
           )}
@@ -85,6 +103,17 @@ export default function Dashboard({ user, setUser }) {
                 <motion.div layoutId="nav-pill" className="absolute inset-0 bg-white/10 rounded-full" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
               )}
               <CalendarDays className={`w-6 h-6 relative z-10 transition-colors ${activeTab === 'games' ? 'text-white' : 'group-hover:text-zinc-300'}`} />
+            </button>
+
+            {/* Explore Tab */}
+            <button 
+              onClick={() => setActiveTab('explore')}
+              className="relative flex flex-col items-center justify-center w-12 h-12 text-zinc-500 hover:text-white transition-colors group"
+            >
+              {activeTab === 'explore' && (
+                <motion.div layoutId="nav-pill" className="absolute inset-0 bg-white/10 rounded-full" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+              )}
+              <Map className={`w-6 h-6 relative z-10 transition-colors ${activeTab === 'explore' ? 'text-white' : 'group-hover:text-zinc-300'}`} />
             </button>
 
             {/* Create FAB */}

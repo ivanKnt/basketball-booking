@@ -33,26 +33,27 @@ function LocationMarker({ position, setPosition }) {
   return position === null ? null : <Marker position={position} />;
 }
 
-export default function CreateGame({ user, onGameCreated, onCancel }) {
+export default function CreateGame({ user, onGameCreated, onCancel, initialCourt }) {
   const [formData, setFormData] = useState({
-    locationName: '',
-    mapPosition: null, // {lat, lng}
+    locationName: initialCourt?.name || '',
+    courtId: initialCourt?.id || null,
+    mapPosition: initialCourt?.coordinates || null,
     date: '',
     time: '',
-    duration: '2',          // hours
+    duration: '2',
     customDuration: '',
     maxPlayers: '10',
     customPlayers: '',
     pricingModel: 'per_person',
     currency: 'XOF',
-    courtCost: '',          // depends on pricing model
-    lightIncluded: true,    // is lighting included in the court cost?
-    lightCostPerHour: '',   // only if lightIncluded is false
-    notes: '',              // custom instructions from organizer
+    courtCost: '',
+    lightIncluded: true,
+    lightCostPerHour: '',
+    notes: initialCourt?.notes || '',
   });
   
   const [loading, setLoading] = useState(false);
-  const [showMap, setShowMap] = useState(false);
+  const [showMap, setShowMap] = useState(!!initialCourt);
 
   const finalDuration = formData.duration === 'custom' ? Number(formData.customDuration) : Number(formData.duration);
   const finalPlayers = formData.maxPlayers === 'custom' ? Number(formData.customPlayers) : Number(formData.maxPlayers);
@@ -64,6 +65,8 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
     try {
       const payload = {
         location: formData.locationName,
+        courtId: formData.courtId,
+        courtImageUrl: initialCourt?.imageUrl || null,
         coordinates: formData.mapPosition ? { lat: formData.mapPosition.lat, lng: formData.mapPosition.lng } : null,
         date: formData.date,
         time: formData.time,
@@ -206,8 +209,8 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
                   >
                     <MapContainer center={defaultCenter} zoom={12} scrollWheelZoom={false} style={{ height: '200px', width: '100%', zIndex: 0 }}>
                       <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
                       />
                       <LocationMarker position={formData.mapPosition} setPosition={(pos) => update('mapPosition', pos)} />
                     </MapContainer>

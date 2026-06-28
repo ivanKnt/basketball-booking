@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Calendar, MapPin, Users, Trophy, Clock, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Users, Trophy, Clock, ChevronRight, Activity, Wallet } from 'lucide-react';
 import { motion } from 'motion/react';
 import { formatDistanceToNow, parseISO, isPast } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-export default function GameList({ onOpenGame }) {
+export default function GameList({ user, onOpenGame }) {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -80,11 +80,45 @@ export default function GameList({ onOpenGame }) {
 
   return (
     <div className="space-y-6 px-4 pt-4 pb-6">
+      {/* User Stats Overview */}
+      {user && (
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="premium-glass p-4 flex flex-col justify-center border-l-2 border-l-emerald-500"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Wallet size={14} className="text-emerald-500" />
+              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Total Cotisé</div>
+            </div>
+            <div className="text-2xl font-display font-bold text-white tracking-tight">
+              {user.totalContributed || 0} <span className="text-xs font-normal text-zinc-500">XOF</span>
+            </div>
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="premium-glass p-4 flex flex-col justify-center border-l-2 border-l-primary"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Activity size={14} className="text-primary" />
+              <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Matchs Joués</div>
+            </div>
+            <div className="text-2xl font-display font-bold text-white tracking-tight">
+              {user.matchesPlayed || 0} <span className="text-xs font-normal text-zinc-500">matchs</span>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Mini Leaderboard Widget */}
       <motion.div 
         initial={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.5, type: 'spring' }}
+        transition={{ duration: 0.6, type: 'spring' }}
         className="premium-glass p-4 flex items-center gap-4 bg-gradient-to-r from-[#140a05] to-[#0a0a0c]"
       >
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center border border-primary/30 glow-orange">
