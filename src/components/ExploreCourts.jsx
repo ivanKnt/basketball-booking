@@ -151,7 +151,7 @@ export default function ExploreCourts({ user, onSelectCourt }) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 lg:gap-5">
         {filteredCourts.length === 0 ? (
           <div className="col-span-full text-center py-12 bg-white/5 rounded-3xl border border-border">
             <MapPin className="mx-auto text-text-muted mb-4" size={48} />

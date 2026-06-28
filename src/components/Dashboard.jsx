@@ -89,7 +89,7 @@ export default function Dashboard({ user, setUser }) {
 
       {/* Main content */}
       <div className={cn('flex-1 w-full min-w-0', showNav && 'pb-28 lg:pb-8')}>
-        <div className="w-full pt-4 lg:pt-6">
+        <div className="w-full pt-4 lg:pt-6 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
           <Suspense fallback={<div className="flex justify-center p-8"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>}>
             <Routes>
               <Route path="/" element={<Navigate to="/games" replace />} />

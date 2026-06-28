@@ -129,6 +129,18 @@ export default function GameSession({ user }) {
     return () => { unsubGame(); unsubRsvps(); unsubPledges(); };
   }, [gameId]);
 
+  // Self-healing mechanism for older games that miss the currentPlayers field
+  useEffect(() => {
+    if (game && rsvps && user && game.createdBy === user.uid) {
+      // Sync if completely missing or out of sync
+      if (game.currentPlayers === undefined || game.currentPlayers !== rsvps.length) {
+        import('firebase/firestore').then(({ updateDoc, doc }) => {
+          updateDoc(doc(db, 'games', gameId), { currentPlayers: rsvps.length }).catch(() => {});
+        });
+      }
+    }
+  }, [game?.currentPlayers, rsvps?.length, game?.createdBy, user?.uid, gameId]);
+
   if (loading || !game) return (
     <div className="flex flex-col items-center justify-center h-[60vh]">
       <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
