@@ -122,7 +122,7 @@ export default function GameSession({ user, gameId, onBack }) {
       } else {
         await setDoc(pledgeRef, {
           userId: user.uid,
-          userName: user.profileName,
+          userName: user.profileName || 'Utilisateur',
           amount: newAmount,
           updatedAt: serverTimestamp()
         });
@@ -145,6 +145,7 @@ export default function GameSession({ user, gameId, onBack }) {
       }
     } catch (e) {
       console.error(e);
+      alert("Erreur Firestore (Pledge): " + e.message);
     }
     setIsSubmitting(false);
   };

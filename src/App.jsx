@@ -35,7 +35,7 @@ function App() {
               const data = docSnap.data();
               setUser({ 
                 ...currentUser, 
-                profileName: data.displayName || '',
+                profileName: data.name || currentUser.displayName || '',
                 matchesPlayed: data.matchesPlayed || 0,
                 totalContributed: data.totalContributed || 0
               });

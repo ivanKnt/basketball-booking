@@ -40,11 +40,12 @@ export default function EmojiReactions({ gameId, user }) {
       await addDoc(collection(db, 'games', gameId, 'reactions'), {
         emoji,
         userId: user.uid,
-        userName: user.profileName,
+        userName: user.profileName || 'Utilisateur',
         createdAt: serverTimestamp()
       });
     } catch(e) {
       console.error(e);
+      alert("Erreur Firestore (Emoji): " + e.message);
     }
   };
 
