@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, collection, onSnapshot, addDoc, setDoc, serverTimestamp, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, collection, onSnapshot, addDoc, setDoc, serverTimestamp, deleteDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { ArrowLeft, CheckCircle, Zap, Trash2, Share2, Shuffle, QrCode, X, Info } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -70,12 +70,18 @@ export default function GameSession({ user, gameId, onBack }) {
           const teamB = (game.teamB || []).filter(id => id !== user.uid);
           await updateDoc(doc(db, 'games', gameId), { teamA, teamB });
         }
+        await updateDoc(doc(db, 'users', user.uid), {
+          matchesPlayed: increment(-1)
+        });
       } else {
         await setDoc(rsvpRef, {
           userId: user.uid,
           userName: user.profileName,
           photoURL: user.photoURL || null,
           joinedAt: serverTimestamp()
+        });
+        await updateDoc(doc(db, 'users', user.uid), {
+          matchesPlayed: increment(1)
         });
         // Confetti explosion
         confetti({
@@ -101,6 +107,9 @@ export default function GameSession({ user, gameId, onBack }) {
         userName: user.profileName,
         amount: Number(pledgeAmount),
         createdAt: serverTimestamp()
+      });
+      await updateDoc(doc(db, 'users', user.uid), {
+        totalContributed: increment(Number(pledgeAmount))
       });
       setPledgeAmount('');
       confetti({

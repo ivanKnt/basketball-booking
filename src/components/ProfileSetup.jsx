@@ -61,6 +61,18 @@ export default function ProfileSetup({ user, setUser }) {
               <div className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-bold text-primary uppercase tracking-widest inline-block border border-primary/20">
                 Membre Actif
               </div>
+              
+              {/* REAL Stats */}
+              <div className="grid grid-cols-2 gap-4 mt-8 w-full">
+                <div className="bg-black/40 border border-white/5 rounded-2xl p-4 text-center">
+                  <div className="text-3xl font-display font-bold text-white mb-1">{user.matchesPlayed || 0}</div>
+                  <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Matchs Joués</div>
+                </div>
+                <div className="bg-black/40 border border-white/5 rounded-2xl p-4 text-center">
+                  <div className="text-3xl font-display font-bold text-primary mb-1">{user.totalContributed || 0}</div>
+                  <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Contribué (XOF)</div>
+                </div>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSave} className="w-full space-y-4">

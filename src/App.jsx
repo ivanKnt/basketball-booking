@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { auth, googleProvider, db } from './lib/firebase';
 import { signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { LogOut } from 'lucide-react';
 import AuthScreen from './components/AuthScreen';
 import Dashboard from './components/Dashboard';
@@ -11,30 +11,52 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubUserDoc;
+    
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          const userRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userRef);
+          
           if (!userDoc.exists()) {
-            await setDoc(doc(db, 'users', currentUser.uid), {
+            await setDoc(userRef, {
               displayName: currentUser.displayName || '',
               photoURL: currentUser.photoURL || '',
-              email: currentUser.email || ''
+              email: currentUser.email || '',
+              matchesPlayed: 0,
+              totalContributed: 0
             });
-            setUser({ ...currentUser, profileName: currentUser.displayName || '' });
-          } else {
-            setUser({ ...currentUser, profileName: userDoc.data().displayName });
           }
+          
+          // Listen to changes in real-time
+          unsubUserDoc = onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              setUser({ 
+                ...currentUser, 
+                profileName: data.displayName || '',
+                matchesPlayed: data.matchesPlayed || 0,
+                totalContributed: data.totalContributed || 0
+              });
+            }
+          });
+          
         } catch (error) {
           console.error("Erreur Firestore:", error);
           setUser({ ...currentUser, profileName: currentUser.displayName || '' });
         }
       } else {
+        if (unsubUserDoc) unsubUserDoc();
         setUser(null);
       }
       setLoading(false);
     });
-    return () => unsubscribe();
+    
+    return () => {
+      unsubscribe();
+      if (unsubUserDoc) unsubUserDoc();
+    };
   }, []);
 
   const handleLogin = async () => {
