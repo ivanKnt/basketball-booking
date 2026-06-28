@@ -141,6 +141,16 @@ export default function GameList({ onOpenGame }) {
                   {game.location}
                 </h3>
                 
+                {/* Scarcity Trigger: Almost full warning */}
+                {playersArray.length / (game.maxPlayers || 10) >= 0.8 && playersArray.length < (game.maxPlayers || 10) && (
+                  <div className="mb-4">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-widest animate-pulse">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                      Presque complet ! (Reste {(game.maxPlayers || 10) - playersArray.length} places)
+                    </div>
+                  </div>
+                )}
+                
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-zinc-400 font-medium mb-4">
                   <div className="flex items-center gap-2">
                     <Calendar size={14} className="text-zinc-500" />

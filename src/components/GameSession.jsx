@@ -202,6 +202,18 @@ export default function GameSession({ user, gameId, onBack }) {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (lightProgress / 100) * circumference;
 
+  // Find top contributor for gamification
+  let topContributorId = null;
+  if (!lightIncluded && pledges.length > 0) {
+    let maxAmount = 0;
+    pledges.forEach(p => {
+      if (p.amount > maxAmount) {
+        maxAmount = p.amount;
+        topContributorId = p.userId;
+      }
+    });
+  }
+
   return (
     <div className="animate-fade-in max-w-4xl mx-auto space-y-6 pb-24 px-2">
       {/* Action Bar */}
@@ -323,12 +335,12 @@ export default function GameSession({ user, gameId, onBack }) {
                   strokeDasharray={circumference} 
                   strokeDashoffset={strokeDashoffset} 
                   strokeLinecap="round"
-                  className="transition-all duration-1000 ease-out" 
+                  className={`transition-all duration-1000 ease-out ${lightProgress >= 70 && lightProgress < 100 ? 'animate-pulse' : ''}`} 
                 />
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#f59e0b" />
-                    <stop offset="100%" stopColor="#fbbf24" />
+                    <stop offset="0%" stopColor={lightProgress >= 100 ? "#10b981" : "#f59e0b"} />
+                    <stop offset="100%" stopColor={lightProgress >= 100 ? "#34d399" : "#fbbf24"} />
                   </linearGradient>
                 </defs>
               </svg>
@@ -430,6 +442,9 @@ export default function GameSession({ user, gameId, onBack }) {
                               {rsvp.photoURL ? <img src={rsvp.photoURL} alt="" className="w-full h-full object-cover"/> : <span className="text-sm font-bold text-zinc-400">{rsvp.userName.charAt(0)}</span>}
                            </div>
                            <span className="font-semibold text-[15px] text-white tracking-tight">{rsvp.userName}</span>
+                           {!lightIncluded && topContributorId === rsvp.userId && playerPledge > 0 && (
+                              <span className="text-xl animate-bounce" title="Top Contributeur Lumière">👑</span>
+                            )}
                          </div>
                          <div className="text-right">
                            <div className="font-bold text-white text-[15px]">{game.perHeadCost + playerPledge} <span className="text-[10px] font-normal text-zinc-500">{game.currency || 'XOF'}</span></div>
