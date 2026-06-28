@@ -7,12 +7,19 @@ import { motion, AnimatePresence } from 'motion/react';
 import { CalendarDays, Plus, User } from 'lucide-react';
 
 export default function Dashboard({ user, setUser }) {
-  const [activeTab, setActiveTab] = useState('games'); // 'games', 'create', 'profile', or 'session'
-  const [activeGameId, setActiveGameId] = useState(null);
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('gameId') ? 'session' : 'games';
+  });
+  const [activeGameId, setActiveGameId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('gameId') || null;
+  });
 
   const handleOpenGame = (id) => {
     setActiveGameId(id);
     setActiveTab('session');
+    window.history.pushState({}, '', `${window.location.pathname}?gameId=${id}`);
   };
 
   return (
@@ -45,6 +52,7 @@ export default function Dashboard({ user, setUser }) {
                 onBack={() => {
                   setActiveGameId(null);
                   setActiveTab('games');
+                  window.history.pushState({}, '', window.location.pathname);
                 }} 
               />
             </motion.div>
