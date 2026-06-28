@@ -148,7 +148,7 @@ export default function GameList({ onOpenGame }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin size={14} className="text-zinc-500" />
-                    <span>{game.perHeadCost} XOF</span>
+                    <span>{game.perHeadCost} {game.currency || 'XOF'}</span>
                   </div>
                 </div>
 
@@ -177,7 +177,7 @@ export default function GameList({ onOpenGame }) {
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-xl font-display font-bold text-white tracking-tight">{raised}<span className="text-[10px] text-zinc-500 ml-1 font-sans font-normal uppercase">XOF</span></div>
+                    <div className="text-xl font-display font-bold text-white tracking-tight">{raised}<span className="text-[10px] text-zinc-500 ml-1 font-sans font-normal uppercase">{game.currency || 'XOF'}</span></div>
                   </div>
                 </div>
               </div>

@@ -122,7 +122,7 @@ export default function GameSession({ user, gameId, onBack }) {
   };
 
   const handleShare = async () => {
-    const text = `🔥 Match prévu à ${game.location} le ${game.date} à ${game.time} !\nFrais: ${game.perHeadCost} XOF.\nRejoins-nous sur HoopShare !`;
+    const text = `🔥 Match prévu à ${game.location} le ${game.date} à ${game.time} !\nFrais: ${game.perHeadCost} ${game.currency || 'XOF'}.\nRejoins-nous sur HoopShare !`;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -203,7 +203,7 @@ export default function GameSession({ user, gameId, onBack }) {
         <div className="bg-[#0a0a0c]/80 rounded-2xl border border-white/5 p-5 mt-4 relative z-10 space-y-3 text-sm shadow-inner">
           <div className="flex justify-between text-zinc-300">
             <span className="font-medium flex items-center gap-2">🏀 {courtCostLabel}</span>
-            <span className="font-bold text-white">{game.perHeadCost || 0} XOF</span>
+            <span className="font-bold text-white">{game.perHeadCost || 0} {game.currency || 'XOF'}</span>
           </div>
           {!lightIncluded && lightCostPerHour > 0 && (
             <div className="flex justify-between text-zinc-300">
@@ -229,7 +229,7 @@ export default function GameSession({ user, gameId, onBack }) {
           <div className="text-center md:text-left">
             <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Votre Total à Payer</h3>
             <p className="text-4xl font-display font-bold text-white tracking-tight">{myCourtCost} <span className="text-lg text-zinc-500 font-normal">terrain</span>{myPledges > 0 && <> + {myPledges} <span className="text-lg text-amber-500 font-normal">lumière</span></>}</p>
-            <p className="text-xs text-zinc-500 mt-1 font-medium">= {myTotalDue} XOF total</p>
+            <p className="text-xs text-zinc-500 mt-1 font-medium">= {myTotalDue} {game.currency || 'XOF'} total</p>
           </div>
           
           <motion.button 
@@ -289,7 +289,7 @@ export default function GameSession({ user, gameId, onBack }) {
               <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Objectif</div>
               <div className="text-3xl font-display font-bold text-white tracking-tight">{totalPledged.toLocaleString('fr-FR')} <span className="text-sm font-medium text-amber-500">/ {totalLightNeeded.toLocaleString('fr-FR')}</span></div>
               <div className="text-[11px] font-medium text-zinc-500 mt-1">
-                {lightCostPerHour.toLocaleString('fr-FR')} XOF/h × {duration}h
+                {lightCostPerHour.toLocaleString('fr-FR')} {game.currency || 'XOF'}/h × {duration}h
               </div>
             </div>
           </div>
@@ -299,7 +299,7 @@ export default function GameSession({ user, gameId, onBack }) {
               type="number" min="100" step="100" required
               value={pledgeAmount}
               onChange={e => setPledgeAmount(e.target.value)}
-              placeholder="Montant XOF"
+              placeholder={`Montant ${game.currency || 'XOF'}`}
               className="flex-1 p-4 bg-black/40 border border-white/5 rounded-2xl text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors font-display text-lg"
             />
             <button type="submit" disabled={isSubmitting || !pledgeAmount} className="bg-amber-500 text-black font-display font-bold tracking-tight text-lg px-8 rounded-2xl hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/20">
@@ -372,7 +372,7 @@ export default function GameSession({ user, gameId, onBack }) {
                            <span className="font-semibold text-[15px] text-white tracking-tight">{rsvp.userName}</span>
                          </div>
                          <div className="text-right">
-                           <div className="font-bold text-white text-[15px]">{game.perHeadCost + playerPledge} <span className="text-[10px] font-normal text-zinc-500">XOF</span></div>
+                           <div className="font-bold text-white text-[15px]">{game.perHeadCost + playerPledge} <span className="text-[10px] font-normal text-zinc-500">{game.currency || 'XOF'}</span></div>
                            {playerPledge > 0 && <div className="text-[11px] text-amber-500 font-medium">+{playerPledge} 💡</div>}
                          </div>
                        </li>

@@ -103,8 +103,9 @@ export default function AuthScreen({ onLogin }) {
             Connecter avec Google
           </motion.button>
           
-          <p className="mt-5 text-xs text-text-muted font-sans relative z-10">
-            Accès sécurisé et 100% gratuit.
+          <p className="mt-5 text-xs text-text-muted font-sans relative z-10 font-medium leading-relaxed">
+            Fini les relances et les avances de frais.<br/>
+            <span className="text-primary font-bold">Ton seul souci : le terrain.</span>
           </p>
         </motion.div>
       </div>

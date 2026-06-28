@@ -43,6 +43,7 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
     maxPlayers: '10',
     customPlayers: '',
     pricingModel: 'per_person',
+    currency: 'XOF',
     courtCost: '',          // depends on pricing model
     lightIncluded: true,    // is lighting included in the court cost?
     lightCostPerHour: '',   // only if lightIncluded is false
@@ -68,6 +69,7 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
         duration: finalDuration,
         maxPlayers: finalPlayers,
         pricingModel: formData.pricingModel,
+        currency: formData.currency,
         courtCost: Number(formData.courtCost),
         lightIncluded: formData.lightIncluded,
         lightCostPerHour: formData.lightIncluded ? 0 : Number(formData.lightCostPerHour || 0),
@@ -323,9 +325,21 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
 
         {/* Section 4: Tarification du Terrain */}
         <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="premium-glass p-6 space-y-5">
-          <div className="flex items-center gap-2 border-b border-white/5 pb-3">
-            <DollarSign className="text-yellow-400" size={18} />
-            <h3 className="font-display font-medium text-lg text-white tracking-wide">Tarification</h3>
+          <div className="flex justify-between items-center border-b border-white/5 pb-3">
+            <div className="flex items-center gap-2">
+              <DollarSign className="text-yellow-400" size={18} />
+              <h3 className="font-display font-medium text-lg text-white tracking-wide">Tarification</h3>
+            </div>
+            <select 
+              value={formData.currency}
+              onChange={e => update('currency', e.target.value)}
+              className="bg-black/40 border border-white/10 text-white text-sm rounded-lg px-2 py-1 outline-none focus:border-yellow-500 transition-colors font-bold"
+            >
+              <option value="XOF">XOF (CFA)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="USD">USD ($)</option>
+              <option value="CAD">CAD ($)</option>
+            </select>
           </div>
 
           <div className="space-y-2">
@@ -362,7 +376,7 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
                 value={formData.courtCost}
                 onChange={e => update('courtCost', e.target.value)}
               />
-              <span className="absolute right-5 top-5 text-zinc-500 font-bold text-sm uppercase">XOF</span>
+              <span className="absolute right-5 top-5 text-zinc-500 font-bold text-sm uppercase">{formData.currency}</span>
             </div>
             <p className="text-[11px] text-zinc-500 pl-1">
               {formData.pricingModel === 'per_person' && 'Le montant que chaque joueur paie au propriétaire du terrain.'}
@@ -421,7 +435,7 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
                     value={formData.lightCostPerHour}
                     onChange={e => update('lightCostPerHour', e.target.value)}
                   />
-                  <span className="absolute right-5 top-5 text-zinc-500 font-bold text-sm uppercase">XOF</span>
+                  <span className="absolute right-5 top-5 text-zinc-500 font-bold text-sm uppercase">{formData.currency}</span>
                 </div>
                 <p className="text-[11px] text-zinc-500 pl-1">
                   Coût additionnel pour l'éclairage, partagé entre tous les joueurs.
@@ -466,12 +480,12 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
               <div className="space-y-4 font-sans relative z-10">
                 <div className="flex justify-between items-center text-zinc-300">
                   <span className="flex items-center gap-2 text-sm font-medium">🏀 Terrain / joueur</span>
-                  <span className="font-semibold text-white">{costBreakdown.courtPerPerson.toLocaleString('fr-FR')} XOF</span>
+                  <span className="font-semibold text-white">{costBreakdown.courtPerPerson.toLocaleString('fr-FR')} {formData.currency}</span>
                 </div>
                 {!formData.lightIncluded && Number(formData.lightCostPerHour) > 0 && (
                   <div className="flex justify-between items-center text-zinc-300">
                     <span className="flex items-center gap-2 text-sm font-medium">💡 Lumière / joueur</span>
-                    <span className="font-semibold text-white">{costBreakdown.lightPerPerson.toLocaleString('fr-FR')} XOF</span>
+                    <span className="font-semibold text-white">{costBreakdown.lightPerPerson.toLocaleString('fr-FR')} {formData.currency}</span>
                   </div>
                 )}
                 
@@ -483,13 +497,13 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
                     <span className="text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#ff8c00] tracking-tight">
                       {costBreakdown.totalPerPerson.toLocaleString('fr-FR')}
                     </span>
-                    <span className="text-zinc-500 font-bold ml-2 text-sm">XOF</span>
+                    <span className="text-zinc-500 font-bold ml-2 text-sm">{formData.currency}</span>
                   </div>
                 </div>
                 
                 <div className="flex justify-between items-center text-[11px] text-zinc-500 pt-3 border-t border-white/5 mt-2 font-medium">
                   <span>Cagnotte totale estimée ({finalPlayers} j. × {finalDuration}h)</span>
-                  <span className="text-zinc-400">{costBreakdown.grandTotal.toLocaleString('fr-FR')} XOF</span>
+                  <span className="text-zinc-400">{costBreakdown.grandTotal.toLocaleString('fr-FR')} {formData.currency}</span>
                 </div>
               </div>
             </motion.div>
