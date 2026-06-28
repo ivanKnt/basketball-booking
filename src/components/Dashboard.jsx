@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProfileSetup from './ProfileSetup';
 import GameList from './GameList';
 import CreateGame from './CreateGame';
@@ -15,6 +15,17 @@ export default function Dashboard({ user, setUser }) {
     const params = new URLSearchParams(window.location.search);
     return params.get('gameId') || null;
   });
+  const [pendingTab, setPendingTab] = useState(null);
+
+  useEffect(() => {
+    if (!user.profileName && activeTab !== 'profile') {
+      setPendingTab(activeTab);
+      setActiveTab('profile');
+    } else if (user.profileName && pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    }
+  }, [user.profileName, activeTab, pendingTab]);
 
   const handleOpenGame = (id) => {
     setActiveGameId(id);
@@ -61,7 +72,7 @@ export default function Dashboard({ user, setUser }) {
       </div>
 
       {/* Floating Dynamic Island Navigation */}
-      {activeTab !== 'session' && (
+      {(activeTab !== 'session' && !!user.profileName) && (
         <div className="fixed bottom-6 left-0 right-0 z-50 px-6 pointer-events-none flex justify-center">
           <div className="pointer-events-auto premium-glass px-6 py-3 flex justify-between items-center gap-8 rounded-full shadow-[0_10px_40px_rgba(255,77,0,0.15)]">
             
