@@ -344,16 +344,16 @@ export default function GameSession({ user, gameId, onBack }) {
                 Entre un nouveau montant pour modifier, ou 0 pour annuler.
               </div>
             )}
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-3">
               <input 
                 type="number" min="0" step="100" required
                 value={pledgeAmount}
                 onChange={e => setPledgeAmount(e.target.value)}
                 placeholder={`Montant ${game.currency || 'XOF'}`}
-                className="flex-1 p-4 bg-black/40 border border-white/5 rounded-2xl text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors font-display text-lg"
+                className="w-full p-4 bg-black/40 border border-white/5 rounded-2xl text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors font-display text-lg text-center"
               />
-              <button type="submit" disabled={isSubmitting || pledgeAmount === ''} className="bg-amber-500 text-black font-display font-bold tracking-tight px-6 rounded-2xl hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/20">
-                {myPledges > 0 ? 'Modifier' : 'Donner'}
+              <button type="submit" disabled={isSubmitting || pledgeAmount === ''} className="w-full py-4 bg-amber-500 text-black font-display font-bold tracking-tight text-lg rounded-2xl hover:bg-amber-400 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/20">
+                {myPledges > 0 ? 'Modifier ma cotisation' : 'Cotiser'}
               </button>
             </div>
           </form>
