@@ -37,26 +37,26 @@ export default function Dashboard({ user, setUser }) {
     <div className="flex flex-col min-h-[100dvh] pb-32 relative bg-background">
       {/* Content area */}
       <div className="flex-1 w-full max-w-lg mx-auto">
-        <AnimatePresence mode="wait">
+        <div className="relative w-full">
           {activeTab === 'profile' && (
-            <motion.div key="profile" initial={{ opacity: 0, x: 20, filter: 'blur(4px)' }} animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, x: -20, filter: 'blur(4px)' }} transition={{ duration: 0.3, type: 'spring', bounce: 0 }}>
+            <div key="profile" className="animate-fade-in">
               <ProfileSetup user={user} setUser={setUser} />
-            </motion.div>
+            </div>
           )}
           {activeTab === 'games' && (
-            <motion.div key="games" initial={{ opacity: 0, x: -20, filter: 'blur(4px)' }} animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, x: 20, filter: 'blur(4px)' }} transition={{ duration: 0.3, type: 'spring', bounce: 0 }}>
+            <div key="games" className="animate-fade-in">
               <GameList onOpenGame={handleOpenGame} />
-            </motion.div>
+            </div>
           )}
           {activeTab === 'create' && (
-            <motion.div key="create" initial={{ opacity: 0, y: 30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 30, scale: 0.95 }} transition={{ duration: 0.4, type: 'spring', bounce: 0.2 }}>
+            <div key="create" className="animate-fade-in">
               <div className="px-4 pt-4">
                 <CreateGame user={user} onGameCreated={handleOpenGame} onCancel={() => setActiveTab('games')} />
               </div>
-            </motion.div>
+            </div>
           )}
           {activeTab === 'session' && (
-            <motion.div key="session" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.3, type: 'spring', bounce: 0 }}>
+            <div key="session" className="animate-fade-in">
               <GameSession 
                 user={user} 
                 gameId={activeGameId} 
@@ -66,9 +66,9 @@ export default function Dashboard({ user, setUser }) {
                   window.history.pushState({}, '', window.location.pathname);
                 }} 
               />
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </div>
       </div>
 
       {/* Floating Dynamic Island Navigation */}
