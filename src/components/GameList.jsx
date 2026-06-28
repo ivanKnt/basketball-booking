@@ -39,8 +39,8 @@ export default function GameList({ user, onOpenGame }) {
     } catch(e) {}
 
     if (isGamePast) return { text: 'Terminé', color: 'text-text-muted', bg: 'bg-zinc-900/50', border: 'border-zinc-800' };
-    if (isFull) return { text: 'Complet', color: 'text-red-400', bg: 'bg-red-950/30', border: 'border-red-900/50' };
-    return { text: 'Ouvert', color: 'text-emerald-400', bg: 'bg-emerald-950/30', border: 'border-emerald-900/50', active: true };
+    if (isFull) return { text: 'Complet', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-950/30', border: 'border-red-200 dark:border-red-900/50' };
+    return { text: 'Ouvert', color: 'text-green-600 dark:text-emerald-400', bg: 'bg-green-100 dark:bg-emerald-950/30', border: 'border-green-200 dark:border-emerald-900/50', active: true };
   };
 
   const getTimeLeft = (date, time) => {

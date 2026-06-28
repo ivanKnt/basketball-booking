@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { doc, collection, onSnapshot, addDoc, setDoc, serverTimestamp, deleteDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { ArrowLeft, Zap, Trash2, Share2, Shuffle, QrCode, X, Info, Navigation, CircleDot, Lightbulb, Crown, Check, Ban, MessageCircle } from 'lucide-react';
@@ -12,7 +14,11 @@ import CourtMap from './CourtMap';
 import { getDirectionsUrl } from '../lib/mapStyles';
 import { searchPlaces } from '../lib/geocoding';
 
-export default function GameSession({ user, gameId, onBack }) {
+export default function GameSession({ user }) {
+  const { gameId } = useParams();
+  const navigate = useNavigate();
+  const onBack = () => navigate('/games');
+  const [numTeams, setNumTeams] = useState(2);
   const [game, setGame] = useState(null);
   const [rsvps, setRsvps] = useState([]);
   const [pledges, setPledges] = useState([]);
@@ -90,10 +96,14 @@ export default function GameSession({ user, gameId, onBack }) {
     try {
       if (isAttending) {
         await deleteDoc(rsvpRef);
-        if (game.teamA || game.teamB) {
-          const teamA = (game.teamA || []).filter(id => id !== user.uid);
-          const teamB = (game.teamB || []).filter(id => id !== user.uid);
-          await updateDoc(doc(db, 'games', gameId), { teamA, teamB });
+        if (game.teams || game.teamA || game.teamB) {
+          const updates = {};
+          if (game.teams) {
+            updates.teams = game.teams.map(team => team.filter(id => id !== user.uid));
+          }
+          if (game.teamA) updates.teamA = game.teamA.filter(id => id !== user.uid);
+          if (game.teamB) updates.teamB = game.teamB.filter(id => id !== user.uid);
+          await updateDoc(doc(db, 'games', gameId), updates);
         }
         await setDoc(doc(db, 'users', user.uid), {
           matchesPlayed: increment(-1)
@@ -170,7 +180,7 @@ export default function GameSession({ user, gameId, onBack }) {
       }
     } catch (e) {
       console.error(e);
-      alert("Erreur Firestore (Pledge): " + e.message);
+      toast.error("Erreur Firestore (Pledge): " + e.message);
     }
     setIsSubmitting(false);
   };
@@ -202,7 +212,7 @@ export default function GameSession({ user, gameId, onBack }) {
   const handleShareSummary = () => shareGameSummary(game, rsvps, pledges, window.location.href);
 
   const handleGenerateTeams = async () => {
-    if (rsvps.length < 2) return alert("Pas assez de joueurs pour générer des équipes !");
+    if (rsvps.length < 2) return toast.error("Pas assez de joueurs pour générer des équipes !");
     setIsSubmitting(true);
     let shuffled = [...rsvps].sort(() => 0.5 - Math.random());
     const mid = Math.ceil(shuffled.length / 2);
@@ -443,44 +453,70 @@ export default function GameSession({ user, gameId, onBack }) {
              </div>
              
              {user.uid === game.organizerId && rsvps.length > 1 && (
-               <button 
-                 onClick={handleGenerateTeams}
-                 disabled={isSubmitting}
-                 className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest bg-white/5 hover:bg-white/10 text-text-muted px-4 py-2.5 rounded-full font-bold transition-colors disabled:opacity-50 border border-border"
-               >
-                 <Shuffle size={14} /> Générer Équipes
-               </button>
+               <div className="flex items-center gap-2">
+                 <select 
+                   value={numTeams} 
+                   onChange={(e) => setNumTeams(Number(e.target.value))}
+                   className="bg-surface border border-border text-text-muted text-[11px] font-bold uppercase tracking-widest px-3 py-2.5 rounded-full outline-none"
+                 >
+                   <option value={2}>2 Équipes</option>
+                   <option value={3}>3 Équipes</option>
+                   <option value={4}>4 Équipes</option>
+                 </select>
+                 <button 
+                   onClick={handleGenerateTeams}
+                   disabled={isSubmitting}
+                   className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest bg-white/5 hover:bg-white/10 text-text-muted px-4 py-2.5 rounded-full font-bold transition-colors disabled:opacity-50 border border-border"
+                 >
+                   <Shuffle size={14} /> Générer
+                 </button>
+               </div>
              )}
            </div>
            
            <div className="p-3 flex-1 overflow-y-auto font-sans">
-             {game.teamA && game.teamA.length > 0 ? (
-               <div className="space-y-4 p-3">
-                 <div className="bg-red-950/20 rounded-2xl p-5 border border-red-500/10">
-                   <h3 className="text-[11px] font-bold text-red-500 mb-3 uppercase tracking-widest text-center">Équipe Rouge</h3>
-                   <div className="flex flex-wrap justify-center gap-2">
-                     {game.teamA.map(userId => {
-                       const rsvp = rsvps.find(r => r.userId === userId);
-                       if (!rsvp) return null;
-                       return <span key={userId} className="text-[13px] font-medium text-text bg-red-500/20 px-4 py-1.5 rounded-full border border-red-500/20">{rsvp.userName}</span>;
-                     })}
-                   </div>
-                 </div>
-                 <div className="text-center text-[10px] font-bold text-text-muted uppercase tracking-widest">VS</div>
-                 <div className="bg-sky-950/20 rounded-2xl p-5 border border-sky-500/10">
-                   <h3 className="text-[11px] font-bold text-sky-500 mb-3 uppercase tracking-widest text-center">Équipe Bleue</h3>
-                   <div className="flex flex-wrap justify-center gap-2">
-                     {game.teamB.map(userId => {
-                       const rsvp = rsvps.find(r => r.userId === userId);
-                       if (!rsvp) return null;
-                       return <span key={userId} className="text-[13px] font-medium text-text bg-sky-500/20 px-4 py-1.5 rounded-full border border-sky-500/20">{rsvp.userName}</span>;
-                     })}
-                   </div>
-                 </div>
-               </div>
-             ) : (
-               <ul className="space-y-1.5">
-                 {rsvps.length === 0 ? (
+              {(game.teams || (game.teamA && game.teamA.length > 0)) && (
+                <div className="space-y-4 p-3 mb-6">
+                 {(() => {
+                   const teamColors = [
+                     { name: 'Rouge', bg: 'bg-red-950/20', border: 'border-red-500/10', text: 'text-red-500', pillBg: 'bg-red-500/20', pillBorder: 'border-red-500/20' },
+                     { name: 'Bleue', bg: 'bg-sky-950/20', border: 'border-sky-500/10', text: 'text-sky-500', pillBg: 'bg-sky-500/20', pillBorder: 'border-sky-500/20' },
+                     { name: 'Verte', bg: 'bg-emerald-950/20', border: 'border-emerald-500/10', text: 'text-emerald-500', pillBg: 'bg-emerald-500/20', pillBorder: 'border-emerald-500/20' },
+                     { name: 'Violette', bg: 'bg-purple-950/20', border: 'border-purple-500/10', text: 'text-purple-500', pillBg: 'bg-purple-500/20', pillBorder: 'border-purple-500/20' }
+                   ];
+                   
+                   const currentTeams = game.teams || [game.teamA, game.teamB].filter(Boolean);
+                   
+                   return currentTeams.map((team, idx) => {
+                     const color = teamColors[idx % teamColors.length];
+                     return (
+                       <div key={idx}>
+                         <div className={`${color.bg} rounded-2xl p-5 border ${color.border}`}>
+                           <h3 className={`text-[11px] font-bold ${color.text} mb-3 uppercase tracking-widest text-center`}>Équipe {color.name}</h3>
+                           <div className="flex flex-wrap justify-center gap-2">
+                             {team.map(userId => {
+                               const rsvp = rsvps.find(r => r.userId === userId);
+                               if (!rsvp) return null;
+                               return <span key={userId} className={`text-[13px] font-medium text-text ${color.pillBg} px-4 py-1.5 rounded-full border ${color.pillBorder}`}>{rsvp.userName}</span>;
+                             })}
+                           </div>
+                         </div>
+                         {idx < currentTeams.length - 1 && (
+                           <div className="text-center text-[10px] font-bold text-text-muted uppercase tracking-widest mt-4">VS</div>
+                         )}
+                       </div>
+                     );
+                   });
+                 })()}
+                </div>
+              )}
+              
+              <div className="px-1">
+                {(game.teams || (game.teamA && game.teamA.length > 0)) && (
+                  <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3 px-2">Tous les participants</h3>
+                )}
+                <ul className="space-y-1.5">
+                  {rsvps.length === 0 ? (
                    <div className="text-center text-text-muted text-sm py-10 font-medium">Aucun joueur pour le moment.</div>
                  ) : (
                    [...rsvps].sort((a, b) => {
@@ -514,7 +550,7 @@ export default function GameSession({ user, gameId, onBack }) {
                    })
                  )}
                </ul>
-             )}
+              </div>
            </div>
            
         </motion.div>

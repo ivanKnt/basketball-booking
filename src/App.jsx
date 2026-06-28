@@ -3,6 +3,7 @@ import { auth, googleProvider, db } from './lib/firebase';
 import { signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { LogOut, Moon, Sun } from 'lucide-react';
+import { Toaster } from 'sonner';
 import AuthScreen from './components/AuthScreen';
 import Dashboard from './components/Dashboard';
 
@@ -106,6 +107,7 @@ function App() {
 
   return (
     <>
+      <Toaster position="top-center" theme={theme} richColors />
       <header className="bg-background/80 backdrop-blur-xl text-text sticky top-0 z-50 border-b border-border pt-[max(env(safe-area-inset-top),1rem)]">
         <div className="page-container flex justify-between items-center py-4">
           <div className="flex items-center gap-2">

@@ -1,25 +1,28 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate, NavLink } from 'react-router-dom';
 import ProfileSetup from './ProfileSetup';
 import GameList from './GameList';
-import CreateGame from './CreateGame';
-import GameSession from './GameSession';
-import ExploreCourts from './ExploreCourts';
 import { motion } from 'motion/react';
 import { CalendarDays, Plus, User, Map, LayoutGrid } from 'lucide-react';
 import { cn } from '../lib/utils';
 
+const CreateGame = React.lazy(() => import('./CreateGame'));
+const GameSession = React.lazy(() => import('./GameSession'));
+const ExploreCourts = React.lazy(() => import('./ExploreCourts'));
 const NAV_ITEMS = [
-  { id: 'games', label: 'Matchs', icon: CalendarDays },
-  { id: 'explore', label: 'Terrains', icon: Map },
-  { id: 'profile', label: 'Profil', icon: User },
+  { id: 'games', path: '/games', label: 'Matchs', icon: CalendarDays },
+  { id: 'explore', path: '/explore', label: 'Terrains', icon: Map },
+  { id: 'profile', path: '/profile', label: 'Profil', icon: User },
 ];
 
-function NavButton({ item, activeTab, onSelect, layoutId = 'nav-pill' }) {
+function NavButton({ item, layoutId = 'nav-pill' }) {
   const Icon = item.icon;
-  const isActive = activeTab === item.id;
+  const location = useLocation();
+  const isActive = location.pathname.startsWith(item.path);
+
   return (
-    <button
-      onClick={() => onSelect(item.id)}
+    <NavLink
+      to={item.path}
       className={cn(
         'relative flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-colors',
         isActive ? 'text-text' : 'text-text-muted hover:text-text-muted hover:bg-white/5'
@@ -34,71 +37,52 @@ function NavButton({ item, activeTab, onSelect, layoutId = 'nav-pill' }) {
       )}
       <Icon size={20} className="relative z-10 shrink-0" />
       <span className="relative z-10 font-medium text-sm">{item.label}</span>
-    </button>
+    </NavLink>
   );
 }
 
 export default function Dashboard({ user, setUser }) {
-  const [activeTab, setActiveTab] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('gameId') ? 'session' : 'games';
-  });
-  const [activeGameId, setActiveGameId] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('gameId') || null;
-  });
-  const [pendingTab, setPendingTab] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
   const [selectedCourt, setSelectedCourt] = useState(null);
 
+  // Profile completion guard
   useEffect(() => {
-    if (!user.profileName && activeTab !== 'profile') {
-      setPendingTab(activeTab);
-      setActiveTab('profile');
-    } else if (user.profileName && pendingTab) {
-      setActiveTab(pendingTab);
-      setPendingTab(null);
+    if (!user.profileName && location.pathname !== '/profile') {
+      navigate('/profile', { replace: true });
     }
-  }, [user.profileName, activeTab, pendingTab]);
+  }, [user.profileName, location.pathname, navigate]);
 
-  const handleOpenGame = (id) => {
-    setActiveGameId(id);
-    setActiveTab('session');
-    window.history.pushState({}, '', `${window.location.pathname}?gameId=${id}`);
-  };
-
-  const showNav = activeTab !== 'session' && !!user.profileName;
+  // Determine if we should show navigation (hide it inside a game session)
+  const isSessionView = location.pathname.startsWith('/game/');
+  const showNav = !isSessionView && !!user.profileName;
+  const isCreateView = location.pathname === '/create';
 
   return (
     <div className="flex min-h-[calc(100dvh-72px)]">
       {/* Desktop sidebar */}
       {showNav && (
-        <aside className="hidden lg:flex flex-col w-56 xl:w-64 shrink-0 border-r border-border bg-surface p-4 sticky top-[72px] h-[calc(100dvh-72px)]">
+        <aside className="hidden lg:flex flex-col w-56 xl:w-64 shrink-0 border-r border-border bg-surface p-4 sticky top-[72px] h-[calc(100dvh-72px)] z-30">
           <div className="flex items-center gap-2 px-3 mb-6 text-text-muted">
             <LayoutGrid size={14} />
             <span className="text-[10px] font-bold uppercase tracking-widest">Navigation</span>
           </div>
           <nav className="space-y-1 flex-1">
             {NAV_ITEMS.map(item => (
-              <NavButton
-                key={item.id}
-                item={item}
-                activeTab={activeTab}
-                onSelect={setActiveTab}
-                layoutId="desktop-nav-pill"
-              />
+              <NavButton key={item.id} item={item} layoutId="desktop-nav-pill" />
             ))}
           </nav>
           <button
-            onClick={() => setActiveTab(activeTab === 'create' ? 'games' : 'create')}
+            onClick={() => navigate(isCreateView ? '/games' : '/create')}
             className={cn(
               'flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-display font-semibold text-sm tracking-wide transition-all',
-              activeTab === 'create'
+              isCreateView
                 ? 'bg-white text-black'
-                : 'bg-gradient-to-r from-primary to-[#ff8c00] text-black hover:opacity-90'
+                : 'bg-gradient-to-r from-primary to-[#ff8c00] text-white hover:opacity-90'
             )}
           >
-            <Plus size={18} className={activeTab === 'create' ? 'rotate-45 transition-transform' : ''} />
-            {activeTab === 'create' ? 'Annuler' : 'Nouveau match'}
+            <Plus size={18} className={isCreateView ? 'rotate-45 transition-transform text-black' : ''} />
+            {isCreateView ? 'Annuler' : 'Nouveau match'}
           </button>
         </aside>
       )}
@@ -106,36 +90,35 @@ export default function Dashboard({ user, setUser }) {
       {/* Main content */}
       <div className={cn('flex-1 w-full min-w-0', showNav && 'pb-28 lg:pb-8')}>
         <div className="w-full pt-4 lg:pt-6">
-          {activeTab === 'profile' && <ProfileSetup user={user} setUser={setUser} />}
-          {activeTab === 'games' && <GameList user={user} onOpenGame={handleOpenGame} />}
-          {activeTab === 'explore' && (
-            <ExploreCourts
-              user={user}
-              onSelectCourt={(court) => {
-                setSelectedCourt(court);
-                setActiveTab('create');
-              }}
-            />
-          )}
-          {activeTab === 'create' && (
-            <CreateGame
-              user={user}
-              initialCourt={selectedCourt}
-              onGameCreated={handleOpenGame}
-              onCancel={() => setActiveTab('games')}
-            />
-          )}
-          {activeTab === 'session' && (
-            <GameSession
-              user={user}
-              gameId={activeGameId}
-              onBack={() => {
-                setActiveGameId(null);
-                setActiveTab('games');
-                window.history.pushState({}, '', window.location.pathname);
-              }}
-            />
-          )}
+          <Suspense fallback={<div className="flex justify-center p-8"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/games" replace />} />
+              <Route path="/games" element={<GameList user={user} onOpenGame={(id) => navigate(`/game/${id}`)} />} />
+              <Route path="/explore" element={
+                <ExploreCourts
+                  user={user}
+                  onSelectCourt={(court) => {
+                    setSelectedCourt(court);
+                    navigate('/create');
+                  }}
+                />
+              } />
+              <Route path="/profile" element={<ProfileSetup user={user} setUser={setUser} />} />
+              <Route path="/create" element={
+                <CreateGame
+                  user={user}
+                  initialCourt={selectedCourt}
+                  onGameCreated={(id) => navigate(`/game/${id}`)}
+                  onCancel={() => navigate('/games')}
+                />
+              } />
+              <Route path="/game/:gameId" element={
+                <GameSession
+                  user={user}
+                />
+              } />
+            </Routes>
+          </Suspense>
         </div>
       </div>
 
@@ -145,11 +128,11 @@ export default function Dashboard({ user, setUser }) {
           <div className="pointer-events-auto apple-card px-3 sm:px-4 py-2 flex justify-between items-center gap-1 rounded-2xl max-w-lg mx-auto border border-border shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
             {NAV_ITEMS.map(item => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              const isActive = location.pathname.startsWith(item.path);
               return (
-                <button
+                <NavLink
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  to={item.path}
                   className="relative flex flex-col items-center justify-center flex-1 min-w-0 h-12 py-1 text-text-muted transition-colors touch-target"
                 >
                   {isActive && (
@@ -163,18 +146,18 @@ export default function Dashboard({ user, setUser }) {
                   <span className={cn('relative z-10 text-[9px] font-medium mt-0.5', isActive ? 'text-text' : 'text-text-muted')}>
                     {item.label}
                   </span>
-                </button>
+                </NavLink>
               );
             })}
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => setActiveTab(activeTab === 'create' ? 'games' : 'create')}
+              onClick={() => navigate(isCreateView ? '/games' : '/create')}
               className={cn(
                 'flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all',
-                activeTab === 'create' ? 'bg-white' : 'bg-gradient-to-tr from-primary to-[#ff8c00]'
+                isCreateView ? 'bg-white text-black' : 'bg-gradient-to-tr from-primary to-[#ff8c00] text-white'
               )}
             >
-              <Plus size={22} className={activeTab === 'create' ? 'text-black rotate-45' : 'text-text'} />
+              <Plus size={22} className={isCreateView ? 'rotate-45 transition-transform text-black' : ''} />
             </motion.button>
           </div>
         </div>
