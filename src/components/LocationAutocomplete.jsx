@@ -81,6 +81,17 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
   const abortRef = useRef(null);
   const justSelectedRef = useRef(false);
 
+  const [userBias, setUserBias] = useState(bias || null);
+
+  useEffect(() => {
+    if (!bias && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserBias({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => setUserBias(null) // Silent fail, will fallback to DEFAULT_CENTER
+      );
+    }
+  }, [bias]);
+
   const displayItems = query.length >= 2 ? results : recent;
   const showRecent = query.length < 2 && recent.length > 0;
   const showResults = query.length >= 2 && (results.length > 0 || isSearching);
@@ -122,7 +133,7 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
 
     const timer = setTimeout(async () => {
       try {
-        const places = await searchPlaces(query, { signal: controller.signal, bias });
+        const places = await searchPlaces(query, { signal: controller.signal, bias: userBias || bias });
         if (!controller.signal.aborted) {
           setResults(places);
           setShowDropdown(true);
@@ -138,7 +149,7 @@ export default function LocationAutocomplete({ value, onChange, bias }) {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query, showDropdown, bias]);
+  }, [query, showDropdown, bias, userBias]);
 
   const handleSelect = useCallback((place) => {
     justSelectedRef.current = true;
