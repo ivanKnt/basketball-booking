@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { auth, googleProvider, db } from './lib/firebase';
-import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
+import { signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { LogOut } from 'lucide-react';
 import AuthScreen from './components/AuthScreen';
@@ -17,17 +17,17 @@ function App() {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (!userDoc.exists()) {
             await setDoc(doc(db, 'users', currentUser.uid), {
-              displayName: currentUser.displayName || 'Joueur',
+              displayName: currentUser.displayName || '',
               photoURL: currentUser.photoURL || '',
-              email: currentUser.email
+              email: currentUser.email || ''
             });
-            setUser({ ...currentUser, profileName: currentUser.displayName || 'Joueur' });
+            setUser({ ...currentUser, profileName: currentUser.displayName || '' });
           } else {
             setUser({ ...currentUser, profileName: userDoc.data().displayName });
           }
         } catch (error) {
           console.error("Erreur Firestore:", error);
-          setUser({ ...currentUser, profileName: currentUser.displayName || 'Joueur' });
+          setUser({ ...currentUser, profileName: currentUser.displayName || '' });
         }
       } else {
         setUser(null);
@@ -42,6 +42,14 @@ function App() {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error('Erreur de connexion', error);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    try {
+      await signInAnonymously(auth);
+    } catch (error) {
+      console.error('Erreur connexion invité', error);
     }
   };
 
@@ -87,7 +95,7 @@ function App() {
 
       <main className="max-w-md md:max-w-4xl mx-auto w-full relative z-10 min-h-[calc(100vh-80px)]">
         {!user ? (
-          <AuthScreen onLogin={handleLogin} />
+          <AuthScreen onLogin={handleLogin} onGuestLogin={handleGuestLogin} />
         ) : (
           <Dashboard user={user} setUser={setUser} />
         )}

@@ -43,7 +43,7 @@ function Basketball() {
   );
 }
 
-export default function AuthScreen({ onLogin }) {
+export default function AuthScreen({ onLogin, onGuestLogin }) {
   const words = "Organisez. Jouez. Dominez.".split(" ");
 
   return (
@@ -97,13 +97,22 @@ export default function AuthScreen({ onLogin }) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.96 }}
             onClick={onLogin}
-            className="relative z-10 w-full flex items-center justify-center gap-3 bg-white text-black hover:bg-zinc-200 font-semibold py-4 px-6 rounded-xl text-lg transition-colors"
+            className="relative z-10 w-full flex items-center justify-center gap-3 bg-white text-black hover:bg-zinc-200 font-semibold py-4 px-6 rounded-xl text-lg transition-colors mb-3"
           >
             <LogIn size={20} />
             Connecter avec Google
           </motion.button>
+
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={onGuestLogin}
+            className="relative z-10 w-full flex items-center justify-center gap-3 bg-transparent text-zinc-400 hover:text-white border border-white/10 hover:bg-white/5 font-semibold py-3 px-6 rounded-xl text-sm transition-colors"
+          >
+            Jouer en tant qu'invité
+          </motion.button>
           
-          <p className="mt-5 text-xs text-text-muted font-sans relative z-10 font-medium leading-relaxed">
+          <p className="mt-5 text-xs text-text-muted font-sans relative z-10 font-medium leading-relaxed border-t border-white/5 pt-4">
             Fini les relances et les avances de frais.<br/>
             <span className="text-primary font-bold">Ton seul souci : le terrain.</span>
           </p>
