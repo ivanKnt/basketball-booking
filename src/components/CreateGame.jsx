@@ -59,6 +59,7 @@ export default function CreateGame({ user, onGameCreated, onCancel, initialCourt
         location: formData.locationName,
         courtId: formData.courtId,
         courtImageUrl: initialCourt?.imageUrl || null,
+        courtImages: initialCourt?.images || [],
         coordinates: formData.mapPosition ? { lat: formData.mapPosition.lat, lng: formData.mapPosition.lng } : null,
         date: formData.date,
         time: formData.time,

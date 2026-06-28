@@ -23,8 +23,8 @@ export default function ExploreCourts({ user, onSelectCourt }) {
     price: 'free', // free, paid
     priceDetails: '',
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -43,17 +43,32 @@ export default function ExploreCourts({ user, onSelectCourt }) {
   }, []);
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("L'image est trop grande (max 5 Mo)");
-        return;
-      }
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    if (files.some(f => f.size > 5 * 1024 * 1024)) {
+      alert("Une image est trop grande (max 5 Mo)");
+      return;
     }
+    
+    if (files.length > 5) {
+      alert("Maximum 5 images autorisées");
+      return;
+    }
+
+    setImageFiles(files);
+    
+    const previews = [];
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previews.push(reader.result);
+        if (previews.length === files.length) {
+          setImagePreviews(previews);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleAddCourt = async (e) => {
@@ -62,11 +77,17 @@ export default function ExploreCourts({ user, onSelectCourt }) {
     
     setIsSubmitting(true);
     try {
-      let imageUrl = null;
-      if (imageFile) {
-        const storageRef = ref(storage, `courts/${Date.now()}_${imageFile.name}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
-        imageUrl = await getDownloadURL(snapshot.ref);
+      let imageUrls = [];
+      let imageUrl = null; // keep for backward compatibility
+      
+      if (imageFiles && imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const storageRef = ref(storage, `courts/${Date.now()}_${file.name}`);
+          const snapshot = await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(snapshot.ref);
+          imageUrls.push(url);
+        }
+        imageUrl = imageUrls[0];
       }
 
       await addDoc(collection(db, 'courts'), {
@@ -78,14 +99,15 @@ export default function ExploreCourts({ user, onSelectCourt }) {
         priceDetails: newCourt.priceDetails,
         coordinates: newCourt.mapPosition ? { lat: newCourt.mapPosition.lat, lng: newCourt.mapPosition.lng } : null,
         imageUrl,
+        images: imageUrls,
         addedBy: user.uid,
         createdAt: serverTimestamp()
       });
 
       setShowAddModal(false);
       setNewCourt({ name: '', notes: '', mapPosition: null, type: 'outdoor', city: '', price: 'free', priceDetails: '' });
-      setImageFile(null);
-      setImagePreview(null);
+      setImageFiles([]);
+      setImagePreviews([]);
     } catch (error) {
       console.error("Erreur lors de l'ajout:", error);
       alert("Erreur: " + error.message);
@@ -145,7 +167,13 @@ export default function ExploreCourts({ user, onSelectCourt }) {
               onClick={() => onSelectCourt && onSelectCourt(court)}
             >
               <div className="h-48 bg-surface relative overflow-hidden flex items-center justify-center">
-                {court.imageUrl ? (
+                {court.images && court.images.length > 0 ? (
+                  <div className="w-full h-full flex overflow-x-auto snap-x snap-mandatory hide-scrollbar group-hover:scale-105 transition-transform duration-500">
+                    {court.images.map((img, idx) => (
+                      <img key={idx} src={img} alt={`${court.name} ${idx+1}`} className="w-full h-full shrink-0 object-cover snap-start" />
+                    ))}
+                  </div>
+                ) : court.imageUrl ? (
                   <img src={court.imageUrl} alt={court.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <MapPin size={48} className="text-zinc-800" />

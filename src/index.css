@@ -129,3 +129,13 @@
   .court-map-container { z-index: 0; }
   .court-map-marker { background: transparent !important; border: none !important; }
 }
+
+@layer utilities {
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

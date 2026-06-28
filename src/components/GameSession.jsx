@@ -54,6 +54,7 @@ export default function GameSession({ user }) {
   const [pledgeAmount, setPledgeAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [showTeamsModal, setShowTeamsModal] = useState(false);
   const [resolvedCoords, setResolvedCoords] = useState(null);
 
   const sensors = useSensors(
@@ -172,6 +173,9 @@ export default function GameSession({ user }) {
         await setDoc(doc(db, 'users', user.uid), {
           matchesPlayed: increment(-1)
         }, { merge: true });
+        await updateDoc(doc(db, 'games', gameId), {
+          currentPlayers: increment(-1)
+        });
       } else {
         await setDoc(rsvpRef, {
           userId: user.uid,
@@ -182,6 +186,9 @@ export default function GameSession({ user }) {
         await setDoc(doc(db, 'users', user.uid), {
           matchesPlayed: increment(1)
         }, { merge: true });
+        await updateDoc(doc(db, 'games', gameId), {
+          currentPlayers: increment(1)
+        });
         // Confetti explosion
         confetti({
           particleCount: 150,
@@ -516,7 +523,14 @@ export default function GameSession({ user }) {
                <h2 className="text-xl font-display font-semibold text-text tracking-tight">Joueurs</h2>
              </div>
              
-             {user.uid === game.organizerId && rsvps.length > 1 && (
+             {(game.teams || (game.teamA && game.teamA.length > 0)) ? (
+               <button 
+                 onClick={() => setShowTeamsModal(true)}
+                 className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 px-4 py-2.5 rounded-full font-bold transition-colors border border-emerald-500/20"
+               >
+                 Voir les Équipes
+               </button>
+             ) : (user.uid === game.organizerId && rsvps.length > 1) ? (
                <div className="flex items-center gap-2">
                  <select 
                    value={numTeams} 
@@ -528,68 +542,23 @@ export default function GameSession({ user }) {
                    <option value={4}>4 Équipes</option>
                  </select>
                  <button 
-                   onClick={handleGenerateTeams}
+                   onClick={() => {
+                     handleGenerateTeams().then(() => setShowTeamsModal(true));
+                   }}
                    disabled={isSubmitting}
                    className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest bg-white/5 hover:bg-white/10 text-text-muted px-4 py-2.5 rounded-full font-bold transition-colors disabled:opacity-50 border border-border"
                  >
                    <Shuffle size={14} /> Générer
                  </button>
                </div>
-             )}
+             ) : null}
            </div>
            
            <div className="p-3 flex-1 overflow-y-auto font-sans">
-              {(game.teams || (game.teamA && game.teamA.length > 0)) && (
-                <div className="space-y-4 p-3 mb-6">
-                 {user.uid === game.organizerId && (
-                   <div className="text-center text-xs text-amber-500 font-medium mb-4 flex items-center justify-center gap-2 bg-amber-500/10 py-2 rounded-xl border border-amber-500/20">
-                     <Info size={14} /> Maintenez enfoncé un joueur pour le déplacer d'une équipe à l'autre
-                   </div>
-                 )}
-                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={user.uid === game.organizerId ? handleDragEnd : undefined}>
-                   {(() => {
-                     const teamColors = [
-                       { name: 'Rouge', bg: 'bg-red-950/20', border: 'border-red-500/10', text: 'text-red-500', pillBg: 'bg-red-500/20', pillBorder: 'border-red-500/20' },
-                       { name: 'Bleue', bg: 'bg-sky-950/20', border: 'border-sky-500/10', text: 'text-sky-500', pillBg: 'bg-sky-500/20', pillBorder: 'border-sky-500/20' },
-                       { name: 'Verte', bg: 'bg-emerald-950/20', border: 'border-emerald-500/10', text: 'text-emerald-500', pillBg: 'bg-emerald-500/20', pillBorder: 'border-emerald-500/20' },
-                       { name: 'Violette', bg: 'bg-purple-950/20', border: 'border-purple-500/10', text: 'text-purple-500', pillBg: 'bg-purple-500/20', pillBorder: 'border-purple-500/20' }
-                     ];
-                     
-                     const currentTeams = game.teams || [game.teamA, game.teamB].filter(Boolean);
-                     
-                     return currentTeams.map((team, idx) => {
-                       const color = teamColors[idx % teamColors.length];
-                       return (
-                         <div key={idx}>
-                           {user.uid === game.organizerId ? (
-                             <DroppableTeam teamIndex={idx} team={team} color={color} rsvps={rsvps} />
-                           ) : (
-                             <div className={`${color.bg} rounded-2xl p-5 border ${color.border}`}>
-                               <h3 className={`text-[11px] font-bold ${color.text} mb-3 uppercase tracking-widest text-center`}>Équipe {color.name}</h3>
-                               <div className="flex flex-wrap justify-center gap-2 min-h-[44px] items-center">
-                                 {team.map(userId => {
-                                   const rsvp = rsvps.find(r => r.userId === userId);
-                                   if (!rsvp) return null;
-                                   return <span key={userId} className={`text-[13px] font-medium text-text ${color.pillBg} px-4 py-1.5 rounded-full border ${color.pillBorder}`}>{rsvp.userName}</span>;
-                                 })}
-                               </div>
-                             </div>
-                           )}
-                           {idx < currentTeams.length - 1 && (
-                             <div className="text-center text-[10px] font-bold text-text-muted uppercase tracking-widest mt-4">VS</div>
-                           )}
-                         </div>
-                       );
-                     });
-                   })()}
-                 </DndContext>
-                </div>
-              )}
+
               
               <div className="px-1">
-                {(game.teams || (game.teamA && game.teamA.length > 0)) && (
-                  <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3 px-2">Tous les participants</h3>
-                )}
+
                 <ul className="space-y-1.5">
                   {rsvps.length === 0 ? (
                    <div className="text-center text-text-muted text-sm py-10 font-medium">Aucun joueur pour le moment.</div>
@@ -645,6 +614,76 @@ export default function GameSession({ user }) {
           </button>
         </div>
       )}
+
+      {/* Teams Modal */}
+      <AnimatePresence>
+        {showTeamsModal && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex flex-col justify-end sm:justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+          >
+            <motion.div 
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="bg-surface border-t sm:border border-border rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto shadow-2xl relative"
+            >
+              <div className="sticky top-0 bg-surface z-10 pb-4 mb-4 border-b border-border flex justify-between items-center">
+                <h2 className="text-xl font-display font-semibold text-text tracking-tight">Gestion des Équipes</h2>
+                <button onClick={() => setShowTeamsModal(false)} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full text-text-muted hover:text-text hover:bg-white/10 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              {(game.teams || (game.teamA && game.teamA.length > 0)) && (
+                <div className="space-y-4 p-3 mb-6">
+                 {user.uid === game.organizerId && (
+                   <div className="text-center text-xs text-amber-500 font-medium mb-4 flex items-center justify-center gap-2 bg-amber-500/10 py-2 rounded-xl border border-amber-500/20">
+                     <Info size={14} /> Maintenez enfoncé un joueur pour le déplacer d'une équipe à l'autre
+                   </div>
+                 )}
+                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={user.uid === game.organizerId ? handleDragEnd : undefined}>
+                   {(() => {
+                     const teamColors = [
+                       { name: 'Rouge', bg: 'bg-red-950/20', border: 'border-red-500/10', text: 'text-red-500', pillBg: 'bg-red-500/20', pillBorder: 'border-red-500/20' },
+                       { name: 'Bleue', bg: 'bg-sky-950/20', border: 'border-sky-500/10', text: 'text-sky-500', pillBg: 'bg-sky-500/20', pillBorder: 'border-sky-500/20' },
+                       { name: 'Verte', bg: 'bg-emerald-950/20', border: 'border-emerald-500/10', text: 'text-emerald-500', pillBg: 'bg-emerald-500/20', pillBorder: 'border-emerald-500/20' },
+                       { name: 'Violette', bg: 'bg-purple-950/20', border: 'border-purple-500/10', text: 'text-purple-500', pillBg: 'bg-purple-500/20', pillBorder: 'border-purple-500/20' }
+                     ];
+                     
+                     const currentTeams = game.teams || [game.teamA, game.teamB].filter(Boolean);
+                     
+                     return currentTeams.map((team, idx) => {
+                       const color = teamColors[idx % teamColors.length];
+                       return (
+                         <div key={idx}>
+                           {user.uid === game.organizerId ? (
+                             <DroppableTeam teamIndex={idx} team={team} color={color} rsvps={rsvps} />
+                           ) : (
+                             <div className={`${color.bg} rounded-2xl p-5 border ${color.border}`}>
+                               <h3 className={`text-[11px] font-bold ${color.text} mb-3 uppercase tracking-widest text-center`}>Équipe {color.name}</h3>
+                               <div className="flex flex-wrap justify-center gap-2 min-h-[44px] items-center">
+                                 {team.map(userId => {
+                                   const rsvp = rsvps.find(r => r.userId === userId);
+                                   if (!rsvp) return null;
+                                   return <span key={userId} className={`text-[13px] font-medium text-text ${color.pillBg} px-4 py-1.5 rounded-full border ${color.pillBorder}`}>{rsvp.userName}</span>;
+                                 })}
+                               </div>
+                             </div>
+                           )}
+                           {idx < currentTeams.length - 1 && (
+                             <div className="text-center text-[10px] font-bold text-text-muted uppercase tracking-widest mt-4">VS</div>
+                           )}
+                         </div>
+                       );
+                     });
+                   })()}
+                 </DndContext>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* QR Code Modal */}
       <AnimatePresence>
