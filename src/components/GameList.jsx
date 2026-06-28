@@ -111,9 +111,10 @@ export default function GameList({ user, onOpenGame }) {
           const progress = Math.min((raised / cost) * 100, 100);
           
           // Get player avatars if available, otherwise mock empty slots
+          const playersCount = game.currentPlayers || (game.players ? Object.values(game.players).length : 0);
           const playersArray = game.players ? Object.values(game.players) : [];
           const displayAvatars = playersArray.slice(0, 3);
-          const remainingPlayers = Math.max(0, playersArray.length - 3);
+          const remainingPlayers = Math.max(0, playersCount - 3);
 
           return (
             <motion.div 
@@ -147,11 +148,11 @@ export default function GameList({ user, onOpenGame }) {
                 </h3>
                 
                 {/* Scarcity Trigger: Almost full warning */}
-                {playersArray.length / (game.maxPlayers || 10) >= 0.8 && playersArray.length < (game.maxPlayers || 10) && (
+                {playersCount / (game.maxPlayers || 10) >= 0.8 && playersCount < (game.maxPlayers || 10) && (
                   <div className="mb-4">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-widest animate-pulse">
                       <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-                      Presque complet ! (Reste {(game.maxPlayers || 10) - playersArray.length} places)
+                      Presque complet ! (Reste {(game.maxPlayers || 10) - playersCount} places)
                     </div>
                   </div>
                 )}
@@ -163,7 +164,7 @@ export default function GameList({ user, onOpenGame }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users size={14} className="text-text-muted" />
-                    <span>{playersArray.length}{game.maxPlayers ? ` / ${game.maxPlayers}` : ''} joueurs</span>
+                    <span>{playersCount}{game.maxPlayers ? ` / ${game.maxPlayers}` : ''} joueurs</span>
                   </div>
                 </div>
 
