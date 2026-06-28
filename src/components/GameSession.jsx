@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { doc, collection, onSnapshot, addDoc, setDoc, serverTimestamp, deleteDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { ArrowLeft, CheckCircle, Zap, Trash2, Share2, Shuffle, QrCode, X, Info } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Zap, Trash2, Share2, Shuffle, QrCode, X, Info, Navigation } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'motion/react';
@@ -270,6 +270,9 @@ export default function GameSession({ user, gameId, onBack }) {
           {game.location}
         </div>
         <div className="flex gap-2">
+          <a href={game.coordinates ? `https://www.google.com/maps/dir/?api=1&destination=${game.coordinates.lat},${game.coordinates.lng}` : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(game.location)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors border border-emerald-500/20">
+            <Navigation size={18} />
+          </a>
           <button onClick={() => setShowQR(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20">
             <QrCode size={18} />
           </button>
@@ -319,6 +322,21 @@ export default function GameSession({ user, gameId, onBack }) {
               <span className="text-[13px] leading-relaxed">{game.notes}</span>
             </div>
           )}
+        </div>
+
+        {/* Map View */}
+        <div className="mt-5 relative z-10 rounded-2xl overflow-hidden border border-white/5 shadow-inner">
+          <iframe 
+            width="100%" 
+            height="180" 
+            style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(80%)' }} 
+            loading="lazy" 
+            allowFullScreen 
+            src={game.coordinates ? `https://maps.google.com/maps?q=${game.coordinates.lat},${game.coordinates.lng}&t=&z=15&ie=UTF8&iwloc=&output=embed` : `https://maps.google.com/maps?q=${encodeURIComponent(game.location)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+          />
+          <a href={game.coordinates ? `https://www.google.com/maps/dir/?api=1&destination=${game.coordinates.lat},${game.coordinates.lng}` : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(game.location)}`} target="_blank" rel="noopener noreferrer" className="absolute bottom-3 right-3 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-4 py-2 rounded-full flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-colors">
+            <Navigation size={14} /> Y ALLER
+          </a>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 justify-between items-center bg-black/40 p-6 rounded-2xl border border-white/5 mt-5 relative z-10">

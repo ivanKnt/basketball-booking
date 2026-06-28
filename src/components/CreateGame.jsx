@@ -7,6 +7,7 @@ import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
+import LocationAutocomplete from './LocationAutocomplete';
 
 // Fix leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -168,13 +169,20 @@ export default function CreateGame({ user, onGameCreated, onCancel }) {
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest pl-1">Nom du terrain</label>
-              <input 
-                required type="text"
-                className="w-full p-4 bg-black/40 border border-white/5 text-white rounded-xl focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-zinc-600 font-sans shadow-inner"
-                placeholder="ex. Terrain d'Agbalépédo"
+              <LocationAutocomplete 
                 value={formData.locationName}
-                onChange={e => update('locationName', e.target.value)}
+                onChange={(placeData) => {
+                  if (placeData) {
+                    setFormData(prev => ({
+                      ...prev,
+                      locationName: placeData.name,
+                      mapPosition: { lat: placeData.lat, lng: placeData.lng }
+                    }));
+                    setShowMap(true); // Automatically show the map to confirm the location!
+                  } else {
+                    update('locationName', '');
+                  }
+                }}
               />
             </div>
 
