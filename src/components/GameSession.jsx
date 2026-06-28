@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, collection, onSnapshot, addDoc, serverTimestamp, deleteDoc, updateDoc } from 'firebase/firestore';
+import { doc, collection, onSnapshot, addDoc, setDoc, serverTimestamp, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { ArrowLeft, CheckCircle, Zap, Trash2, Share2, Shuffle, QrCode, X, Info } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -52,6 +52,11 @@ export default function GameSession({ user, gameId, onBack }) {
 
   const isFull = game.maxPlayers && rsvps.length >= game.maxPlayers;
   const courtCostLabel = game.pricingModel === 'per_person' ? 'Terrain / joueur' : game.pricingModel === 'per_hour' ? 'Terrain / heure' : 'Forfait terrain';
+
+  // Calculate recommended contribution per person for light
+  const lightPerPerson = (!lightIncluded && totalLightNeeded > 0 && rsvps.length > 0)
+    ? Math.ceil(totalLightNeeded / rsvps.length)
+    : 0;
 
   const handleToggleRSVP = async () => {
     if (!isAttending && isFull) return; // Prevent joining if full
@@ -227,22 +232,25 @@ export default function GameSession({ user, gameId, onBack }) {
 
         <div className="flex flex-col md:flex-row gap-6 justify-between items-center bg-black/40 p-6 rounded-2xl border border-white/5 mt-5 relative z-10">
           <div className="text-center md:text-left">
-            <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Votre Total à Payer</h3>
-            <p className="text-4xl font-display font-bold text-white tracking-tight">{myCourtCost} <span className="text-lg text-zinc-500 font-normal">terrain</span>{myPledges > 0 && <> + {myPledges} <span className="text-lg text-amber-500 font-normal">lumière</span></>}</p>
-            <p className="text-xs text-zinc-500 mt-1 font-medium">= {myTotalDue} {game.currency || 'XOF'} total</p>
+            <h3 className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold mb-1">Ce que tu paies</h3>
+            <p className="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight">
+              {game.perHeadCost}{lightPerPerson > 0 && <> + ~{lightPerPerson}</>} <span className="text-sm text-zinc-500 font-normal">{game.currency || 'XOF'}</span>
+            </p>
+            <p className="text-xs text-zinc-500 mt-1 font-medium">
+              {game.perHeadCost} terrain{lightPerPerson > 0 ? ` + ~${lightPerPerson} lumière` : ''} = <span className="text-white font-semibold">{game.perHeadCost + lightPerPerson} {game.currency || 'XOF'}</span> total estimé
+            </p>
           </div>
           
           <motion.button 
             whileTap={{ scale: 0.96 }}
             onClick={handleToggleRSVP}
             disabled={isSubmitting || (!isAttending && isFull)}
-            className={`w-full md:w-auto px-8 py-4 rounded-2xl font-display font-bold tracking-tight text-xl transition-all flex justify-center items-center gap-2 shadow-xl
+            className={`w-full md:w-auto px-8 py-4 rounded-2xl font-display font-bold tracking-tight text-lg sm:text-xl transition-all flex justify-center items-center gap-2 shadow-xl
               ${isAttending ? 'bg-[#0a0a0c] text-white hover:bg-black border border-white/10' : 
                 (!isAttending && isFull) ? 'bg-red-950/30 text-red-500 cursor-not-allowed border border-red-900/30 shadow-none' :
                 'bg-white text-black hover:bg-zinc-200'}`}
           >
-            {isAttending ? 'Annuler participation' : (isFull ? 'COMPLET' : "Rejoindre le Match")}
-            {!isAttending && !isFull && <CheckCircle size={20} className="ml-1" />}
+            {isAttending ? '❌ Annuler' : (isFull ? '🚫 Complet' : `✅ Je participe · ${game.perHeadCost} ${game.currency || 'XOF'}`)}
           </motion.button>
         </div>
       </motion.div>
@@ -258,7 +266,17 @@ export default function GameSession({ user, gameId, onBack }) {
             </div>
             <h2 className="text-xl font-display font-bold text-white tracking-tight">Cagnotte Lumière</h2>
           </div>
-          <p className="text-sm text-zinc-400 mb-6 font-medium">L'éclairage n'est pas inclus dans le prix du terrain. Contribuez ici pour financer les lumières.</p>
+          <p className="text-sm text-zinc-400 mb-4 font-medium">L'éclairage n'est pas inclus. Contribuez ici pour financer les lumières.</p>
+          
+          {/* Recommended per-person contribution */}
+          {rsvps.length > 0 && (
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4 flex items-center justify-between">
+              <span className="text-xs text-zinc-400 font-medium">💡 Recommandé / joueur</span>
+              <span className="text-base font-display font-bold text-amber-400 tracking-tight">
+                ~{Math.ceil(totalLightNeeded / rsvps.length)} {game.currency || 'XOF'}
+              </span>
+            </div>
+          )}
           
           <div className="flex items-center gap-6 mb-8">
             <div className="relative w-24 h-24 flex items-center justify-center shrink-0">

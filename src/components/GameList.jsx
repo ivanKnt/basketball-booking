@@ -91,8 +91,8 @@ export default function GameList({ onOpenGame }) {
           <Trophy className="text-primary" size={24} />
         </div>
         <div className="flex-1">
-          <div className="text-[10px] text-primary font-bold uppercase tracking-widest mb-0.5">Top Cotiseur</div>
-          <div className="text-white font-display font-medium tracking-tight text-lg">Rejoignez pour voir</div>
+          <div className="text-[10px] text-primary font-bold uppercase tracking-widest mb-0.5">Prochain Match</div>
+          <div className="text-white font-display font-medium tracking-tight text-lg">{games.length} match{games.length > 1 ? 's' : ''} disponible{games.length > 1 ? 's' : ''}</div>
         </div>
         <ChevronRight size={20} className="text-zinc-600" />
       </motion.div>
@@ -141,15 +141,21 @@ export default function GameList({ onOpenGame }) {
                   {game.location}
                 </h3>
                 
-                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-zinc-400 font-medium mb-5">
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-zinc-400 font-medium mb-4">
                   <div className="flex items-center gap-2">
                     <Calendar size={14} className="text-zinc-500" />
                     <span>{game.date} • {game.time}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin size={14} className="text-zinc-500" />
-                    <span>{game.perHeadCost} {game.currency || 'XOF'}</span>
+                    <Users size={14} className="text-zinc-500" />
+                    <span>{playersArray.length}{game.maxPlayers ? ` / ${game.maxPlayers}` : ''} joueurs</span>
                   </div>
+                </div>
+
+                {/* Per-person cost — THE key info */}
+                <div className="bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
+                  <span className="text-xs text-zinc-400 font-medium">💰 À payer par joueur</span>
+                  <span className="text-lg font-display font-bold text-primary tracking-tight">{game.perHeadCost} {game.currency || 'XOF'}</span>
                 </div>
 
                 {/* Avatar Stack */}
@@ -177,7 +183,7 @@ export default function GameList({ onOpenGame }) {
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-xl font-display font-bold text-white tracking-tight">{raised}<span className="text-[10px] text-zinc-500 ml-1 font-sans font-normal uppercase">{game.currency || 'XOF'}</span></div>
+                    <div className="text-xs font-semibold text-primary uppercase tracking-widest">Voir →</div>
                   </div>
                 </div>
               </div>
