@@ -214,6 +214,51 @@ export default function GameSession({ user, gameId, onBack }) {
     });
   }
 
+  const handleShareSummary = async () => {
+    let text = `🏀 *MATCH DU ${game.date} - ${game.time}*\n`;
+    text += `📍 ${game.location}\n\n`;
+    
+    text += `👥 *JOUEURS (${rsvps.length}/${game.maxPlayers || '?'})* :\n`;
+    if (rsvps.length === 0) {
+      text += `Aucun joueur inscrit.\n`;
+    } else {
+      rsvps.forEach((rsvp, idx) => {
+        const playerPledge = pledges.filter(p => p.userId === rsvp.userId).reduce((acc, p) => acc + p.amount, 0);
+        const totalPaid = game.perHeadCost + playerPledge;
+        text += `${idx + 1}. ${rsvp.userName} - ${totalPaid} ${game.currency || 'XOF'}\n`;
+      });
+    }
+
+    if (!lightIncluded && totalLightNeeded > 0) {
+      text += `\n💡 *LUMIÈRE (${totalPledged} / ${totalLightNeeded} XOF)* :\n`;
+      const lightPledges = pledges.filter(p => p.amount > 0);
+      if (lightPledges.length === 0) {
+        text += `Aucune cotisation.\n`;
+      } else {
+        lightPledges.forEach(p => {
+          text += `- ${p.userName} : ${p.amount} XOF\n`;
+        });
+      }
+    }
+    
+    const totalCollected = (rsvps.length * game.perHeadCost) + totalPledged;
+    text += `\n✅ *Total récolté : ${totalCollected} ${game.currency || 'XOF'}*\n\n`;
+    text += `Rejoins HoopShare : ${window.location.href}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Récapitulatif HoopShare',
+          text: text,
+        });
+      } catch (e) {
+        console.error("Error sharing", e);
+      }
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+  };
+
   return (
     <div className="animate-fade-in max-w-4xl mx-auto space-y-6 pb-24 px-2">
       {/* Action Bar */}
@@ -466,8 +511,11 @@ export default function GameSession({ user, gameId, onBack }) {
       </div>
 
       {user.uid === game.organizerId && (
-        <div className="flex justify-center mt-8">
-          <button onClick={handleDeleteGame} className="text-[13px] font-medium flex items-center gap-2 text-zinc-500 hover:text-red-400 transition-colors px-4 py-2 rounded-full hover:bg-red-500/10">
+        <div className="flex justify-center mt-8 gap-4 flex-wrap">
+          <button onClick={handleShareSummary} className="text-[13px] font-bold flex items-center gap-2 text-white bg-green-500 hover:bg-green-600 transition-colors px-6 py-3 rounded-full shadow-lg shadow-green-500/20">
+            <Share2 size={16} /> Partager Récap WhatsApp
+          </button>
+          <button onClick={handleDeleteGame} className="text-[13px] font-medium flex items-center gap-2 text-zinc-500 hover:text-red-400 transition-colors px-4 py-3 rounded-full hover:bg-red-500/10">
             <Trash2 size={16} /> Supprimer ce match
           </button>
         </div>
