@@ -200,21 +200,21 @@ export default function ExploreCourts({ user, onSelectCourt }) {
         {showAddModal && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4"
+            className="fixed inset-0 z-50 flex flex-col sm:items-center sm:justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4"
           >
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-              className="bg-[#0a0a0c] border-t sm:border border-white/10 sm:rounded-3xl rounded-t-3xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              className="bg-[#0a0a0c] sm:border border-white/10 sm:rounded-3xl w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg flex flex-col"
             >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-display font-bold text-white tracking-tight">Nouveau Terrain</h2>
-                <button onClick={() => setShowAddModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-zinc-400 hover:text-white transition-colors">
+              <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 sticky top-0 bg-[#0a0a0c]/90 backdrop-blur-md z-10 sm:rounded-t-3xl">
+                <h2 className="text-xl sm:text-2xl font-display font-bold text-white tracking-tight">Nouveau Terrain</h2>
+                <button type="button" onClick={() => setShowAddModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-zinc-400 hover:text-white transition-colors">
                   <X size={16} />
                 </button>
               </div>
 
-              <form onSubmit={handleAddCourt} className="space-y-5">
+              <form id="add-court-form" onSubmit={handleAddCourt} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 pb-24 sm:pb-6">
                 
                 {/* Image Upload */}
                 <div>

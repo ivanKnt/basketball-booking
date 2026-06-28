@@ -44,7 +44,7 @@ export const MAP_STYLES = {
   },
 };
 
-export const DEFAULT_CENTER = [6.1725, 1.2314]; // Lomé, Togo
+export const DEFAULT_CENTER = [14.6928, -17.4467]; // Dakar, Senegal
 export const DEFAULT_ZOOM = 13;
 
 export function coordsToLatLng(coords) {
